@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CapacitiumX Studio V26 - Audio Magnético</title>
+    <title>CapacitiumX Studio V27 - Voz Magnética Inteligente</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --neon: #3b82f6; --bg: #050507; --panel: #121216; --track-bg: #1f1f23; }
@@ -37,7 +37,7 @@
         .playhead-line { position: absolute; left: 10px; width: 2px; height: 100%; background: #ffffff; pointer-events: none; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
         .playhead-head { position: absolute; left: 5px; top: 0; width: 12px; height: 12px; background: #ffffff; clip-path: polygon(0 0, 100% 0, 50% 100%); pointer-events: none; }
 
-        .clip-block { position: absolute; height: 90%; top: 5%; background: linear-gradient(135deg, #2563eb, #3b82f6); border-radius: 4px; display: flex; align-items: center; padding: 0 8px; font-size: 10px; font-weight: bold; opacity: 0.95; overflow: hidden; white-space: nowrap; border: 1px solid #60a5fa; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 20; transition: border 0.1s; }
+        .clip-block { position: absolute; height: 90%; top: 5%; background: linear-gradient(135deg, #2563eb, #3b82f6); border-radius: 4px; display: flex; align-items: center; padding: 0 8px; font-size: 10px; font-weight: bold; opacity: 0.95; overflow: hidden; white-space: nowrap; border: 1px solid #60a5fa; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 20; transition: border 0.1s, width 0.3s, left 0.3s; }
         .clip-block.image { background: linear-gradient(135deg, #d97706, #f59e0b); border-color: #fbbf24; }
         .clip-block.audio { background: linear-gradient(135deg, #059669, #10b981); border-color: #34d399; }
         .clip-block.text { background: linear-gradient(135deg, #7c3aed, #8b5cf6); border-color: #a78bfa; }
@@ -80,7 +80,7 @@
 
     <div class="app-header">
         <div style="display: flex; align-items: center; gap: 15px;">
-            <span><i class="fa-solid fa-crown" style="color: #fbbf24;"></i> Estudio Pro V26</span>
+            <span><i class="fa-solid fa-crown" style="color: #fbbf24;"></i> Estudio Pro V27</span>
             <div class="autosave-badge" id="saveIndicator"><i class="fa-solid fa-cloud"></i> Guardado</div>
         </div>
         <button class="btn-save" id="btnExport" onclick="exportVideo()"><i class="fa-solid fa-rocket"></i> EXPORTAR HASTA LÍNEA AMARILLA</button>
@@ -141,8 +141,8 @@
                 <input type="range" id="masterVolume" min="0" max="100" value="100" oninput="updateMasterVolume()">
             </div>
             
-            <label style="font-size: 11px; color: #aaa; text-align: center; margin-top: 10px; display: block;">Micrófono IA (Se detiene exacto al terminar la imagen)</label>
-            <div class="btn primary" id="btnRecVoice" onclick="toggleVoiceRecord()" style="padding: 12px; margin-top: 5px; font-size: 14px;"><i class="fa-solid fa-microphone"></i> Grabar Narración Exacta</div>
+            <label style="font-size: 11px; color: #aaa; text-align: center; margin-top: 10px; display: block;">Voz Dictadora (Auto-Ajuste Magnético Cero Espacios)</label>
+            <div class="btn primary" id="btnRecVoice" onclick="toggleVoiceRecord()" style="padding: 12px; margin-top: 5px; font-size: 14px;"><i class="fa-solid fa-microphone"></i> Grabar Narración Impulsada por Voz</div>
         </div>
 
         <!-- TEXTOS Y FX -->
@@ -241,14 +241,14 @@
             <div style="background: #121216; padding: 15px; border-radius: 6px; border: 1px solid #10b981;">
                 <label style="font-size: 11px; color: #aaa;">Nombrar Proyecto Actual</label>
                 <div style="display: flex; gap: 5px; margin-top: 5px;">
-                    <input type="text" id="projectName" placeholder="Ej: Proyecto Capacitium..." value="Proyecto Sin Título">
+                    <input type="text" id="projectName" placeholder="Ej: Video Automatizado..." value="Proyecto Sin Título">
                     <button class="btn primary" onclick="forceSaveProject()"><i class="fa-solid fa-save"></i> Guardar</button>
                 </div>
             </div>
 
             <h4 style="font-size: 12px; border-bottom: 1px solid #333; padding-bottom: 5px; margin: 15px 0 5px 0;">Historial de Proyectos</h4>
             <div class="project-list" id="projectListDisplay"></div>
-            <div class="btn danger" onclick="clearProjects()" style="margin-top: 10px;"><i class="fa-solid fa-triangle-exclamation"></i> Vaciar toda la papelera</div>
+            <div class="btn danger" onclick="clearProjects()" style="margin-top: 10px;"><i class="fa-solid fa-trash"></i> Borrar Todo el Historial</div>
         </div>
     </div>
 
@@ -368,7 +368,7 @@
             resetPlayhead(); alert("Proyecto cargado.");
         }
 
-        // --- MARCADORES ---
+        // --- MARCADORES LÍNEA AMARILLA ---
         let inMarkerX = 45; let outMarkerX = 300; 
         function updateExportZone() { document.getElementById('markerIn').style.left = inMarkerX + 'px'; document.getElementById('markerOut').style.left = outMarkerX + 'px'; document.getElementById('exportZone').style.left = inMarkerX + 'px'; document.getElementById('exportZone').style.width = Math.max(0, outMarkerX - inMarkerX) + 'px'; triggerAutosave(); }
         updateExportZone();
@@ -394,7 +394,7 @@
                 clip.filter = document.getElementById('clipFilter').value; clip.anim = document.getElementById('clipAnim').value;
                 selectedClipEl.classList.add('has-fx');
                 if (selectedClipEl.querySelector('.fx-badge') === null) { selectedClipEl.innerHTML += `<div class="fx-badge"><i class="fa-solid fa-wand-magic-sparkles"></i></div>`; }
-                triggerAutosave(); alert("Efecto Aplicado.");
+                triggerAutosave(); alert("Efecto Premium aplicado a este clip.");
             }
         }
 
@@ -421,9 +421,9 @@
 
         // --- TIJERAS ---
         function splitSelectedClip() {
-            if(!selectedClipEl) return alert("Selecciona un clip.");
+            if(!selectedClipEl) return alert("Selecciona un clip para cortarlo.");
             const id = selectedClipEl.getAttribute('data-id'); const orig = projectClips.find(c => c.id == id);
-            if(!orig || playheadX <= orig.startPx || playheadX >= orig.startPx + orig.widthPx) { return alert("Coloca la línea de reproducción sobre el clip."); }
+            if(!orig || playheadX <= orig.startPx || playheadX >= orig.startPx + orig.widthPx) { return alert("Coloca la línea de reproducción blanca sobre el clip."); }
 
             const leftWidth = playheadX - orig.startPx; const rightWidth = orig.widthPx - leftWidth; const newId = Date.now();
             orig.widthPx = leftWidth; selectedClipEl.style.width = leftWidth + 'px';
@@ -440,7 +440,7 @@
             triggerAutosave();
         }
 
-        // --- TEXTO ---
+        // --- TEXTO EN VIVO ---
         function liveUpdateText() {
             if(selectedClipEl) {
                 const id = selectedClipEl.getAttribute('data-id'); let clipObj = projectClips.find(c => c.id == id);
@@ -463,28 +463,27 @@
 
         function addTextToTimeline() {
             let inputVal = document.getElementById('overlayText').value.trim(); let textContent = inputVal !== '' ? inputVal : "Texto";
-            const clipId = Date.now(); const clipUi = document.createElement('div'); clipUi.className = 'clip-block text'; clipUi.style.left = playheadX + 'px'; clipUi.style.width = '150px'; clipUi.setAttribute('data-id', clipId); 
+            const clipId = Date.now(); const clipUi = document.createElement('div'); clipUi.className = 'clip-block text'; clipUi.style.left = playheadX + 'px'; clipUi.style.width = '450px'; clipUi.setAttribute('data-id', clipId); 
             clipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-font"></i> &nbsp;${textContent.substring(0,6)}</div>`;
             makeDraggable(clipUi, false, clipId); makeResizable(clipUi, clipId); clipUi.addEventListener('mousedown', selectClip); clipUi.addEventListener('touchstart', selectClip, {passive: true}); document.getElementById('textTrack').appendChild(clipUi);
 
             let fontColor = document.getElementById('overlayColor').value || '#ffffff'; let fontType = document.getElementById('textFont').value || 'sans-serif'; let hasBg = document.getElementById('useBgOption') ? document.getElementById('useBgOption').value === 'color' : false; let bgColor = document.getElementById('overlayBg').value || '#e50000';
 
-            projectClips.push({ id: clipId, type: 'text', content: textContent, color: fontColor, font: fontType, useBg: hasBg, bgColor: bgColor, x: 640, y: 360, size: 80, startPx: playheadX, widthPx: 150, offsetPx: 0, filter: 'none', anim: 'none', isOffline: false });
+            projectClips.push({ id: clipId, type: 'text', content: textContent, color: fontColor, font: fontType, useBg: hasBg, bgColor: bgColor, x: 640, y: 360, size: 80, startPx: playheadX, widthPx: 450, offsetPx: 0, filter: 'none', anim: 'none', isOffline: false });
             clipUi.dispatchEvent(new Event('mousedown')); document.getElementById('overlayText').value = textContent;
-            let endClip = playheadX + 150; if (endClip > outMarkerX) { outMarkerX = endClip; updateExportZone(); } playheadX += 150; document.getElementById('playhead').style.left = playheadX + 'px'; updateTimecode(); triggerAutosave();
+
+            let endClip = playheadX + 450; if (endClip > outMarkerX) { outMarkerX = endClip; updateExportZone(); } playheadX += 450; document.getElementById('playhead').style.left = playheadX + 'px'; updateTimecode(); triggerAutosave();
         }
 
         function getBase64(file, callback) { var reader = new FileReader(); reader.readAsDataURL(file); reader.onload = function () { callback(reader.result); }; }
 
-        // --- IMPORTACIÓN MÚLTIPLE (AUTO TÍTULOS CONTIGUOS) ---
+        // --- IMPORTACIÓN MULTIPLE DE JALÓN (CERO ESPACIOS) ---
         function addMediaToTimeline(event) {
             initAudio(); const files = event.target.files; if (!files || files.length === 0) return; 
 
             for (let i = 0; i < files.length; i++) {
-                const file = files[i]; const isVideo = file.type.startsWith('video/'); const url = URL.createObjectURL(file); 
-                const fileNameRaw = file.name.replace(/\.[^/.]+$/, "");
-                const mediaClipId = Date.now() + 'm' + i; 
-                const currentPx = playheadX;
+                const file = files[i]; const isVideo = file.type.startsWith('video/'); const url = URL.createObjectURL(file); const fileNameRaw = file.name.replace(/\.[^/.]+$/, "");
+                const mediaClipId = Date.now() + 'm' + i; const currentPx = playheadX;
 
                 const randomFilter = EXPORT_FILTERS[Math.floor(Math.random() * EXPORT_FILTERS.length)];
                 const randomAnim = EXPORT_ANIMS[Math.floor(Math.random() * EXPORT_ANIMS.length)];
@@ -504,15 +503,14 @@
                     projectClips.push({ id: mediaClipId, type: 'image', startPx: currentPx, widthPx: 450, offsetPx: 0, domElement: mediaElement, filter: randomFilter, anim: randomAnim, isOffline: false, base64Data: null });
                 }
 
-                // TÍTULO AUTOMÁTICO - LIMPIO, AMARILLO Y AL BORDE INFERIOR (CERO ESPACIOS)
+                // TÍTULO AUTO - AMARILLO, IMPACT, ABAJO
                 const textClipId = Date.now() + 't' + i; const textClipUi = document.createElement('div'); textClipUi.className = 'clip-block text has-fx'; textClipUi.style.left = currentPx + 'px'; textClipUi.style.width = '450px'; textClipUi.setAttribute('data-id', textClipId);
                 textClipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-font"></i> &nbsp;${fileNameRaw.substring(0,8)}</div><div class="fx-badge"><i class="fa-solid fa-wand-magic-sparkles"></i></div>`;
                 makeDraggable(textClipUi, false, textClipId); makeResizable(textClipUi, textClipId); textClipUi.addEventListener('mousedown', selectClip); textClipUi.addEventListener('touchstart', selectClip, {passive: true}); document.getElementById('textTrack').appendChild(textClipUi);
 
                 projectClips.push({ id: textClipId, type: 'text', content: fileNameRaw, color: "#ffff00", font: "Impact", useBg: false, bgColor: "#000000", x: 640, y: 680, size: 90, startPx: currentPx, widthPx: 450, offsetPx: 0, filter: 'none', anim: 'none', isOffline: false });
 
-                let endClip = currentPx + 450; if (endClip > outMarkerX) { outMarkerX = endClip; updateExportZone(); } 
-                playheadX += 450; // Sin espacio negro
+                let endClip = currentPx + 450; if (endClip > outMarkerX) { outMarkerX = endClip; updateExportZone(); } playheadX += 450; 
             }
             document.getElementById('playhead').style.left = playheadX + 'px'; updateTimecode(); triggerAutosave(); event.target.value = ''; 
         }
@@ -585,7 +583,7 @@
         function handleCanvasEnd(e) { if(isDraggingOverlay){ isDraggingOverlay = false; triggerAutosave(); } }
         canvas.addEventListener('mousedown', handleCanvasStart); canvas.addEventListener('touchstart', handleCanvasStart, {passive: false}); canvas.addEventListener('mousemove', handleCanvasMove);  canvas.addEventListener('touchmove', handleCanvasMove, {passive: false}); window.addEventListener('mouseup', handleCanvasEnd); window.addEventListener('touchend', handleCanvasEnd);
 
-        // --- RENDERIZADO VISUAL ---
+        // --- RENDERIZADO VISUAL LIMITADO ---
         function renderCanvasGraphics() {
             ctx.fillStyle = "#111115"; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -664,7 +662,6 @@
                 playInterval = setInterval(() => {
                     globalTime++; playheadX = 45 + (globalTime * (pixelsPerSecond/10)); document.getElementById('playhead').style.left = playheadX + 'px'; updateTimecode(); document.getElementById('timelineScroll').scrollLeft = playheadX - 100;
                     if(isExporting && playheadX >= outMarkerX) { mainRecorder.stop(); togglePlayback(); }
-                    if (isRecordingVoice && activeRecordingTarget) { if (playheadX >= activeRecordingTarget.startPx + activeRecordingTarget.widthPx) { toggleVoiceRecord(); } }
                 }, 100);
             }
         }
@@ -673,9 +670,8 @@
             projectClips.forEach(clip => { if((clip.type === 'video' || clip.type === 'audio') && clip.domElement && !clip.isOffline) { let mediaTime = ((playheadX - clip.startPx) + clip.offsetPx) / pixelsPerSecond; if(mediaTime >= 0) clip.domElement.currentTime = mediaTime; } });
         }
 
-        // --- AUDIO MAGNÉTICO LIMITADO (SNAP-TO-IMAGE) ---
-        let isRecordingVoice = false; let voiceStream; let voiceRecorder; let voiceChunks = []; let voiceStartTime = 0; 
-        let activeRecordingTarget = null; let recordingStartPx = 0;
+        // --- MAGIA: AUDIO DICTA EL TAMAÑO DE LA IMAGEN (VOICE-DRIVEN RIPPLE EDIT) ---
+        let isRecordingVoice = false; let voiceStream; let voiceRecorder; let voiceChunks = []; let voiceStartTime = 0; let recordingStartPx = 0;
         
         async function toggleVoiceRecord() {
             initAudio(); const btn = document.getElementById('btnRecVoice'); const badge = document.getElementById('recBadge');
@@ -683,41 +679,62 @@
                 try {
                     voiceStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); voiceChunks = []; voiceRecorder = new MediaRecorder(voiceStream); voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data); };
                     
-                    activeRecordingTarget = projectClips.find(c => (c.type === 'image' || c.type === 'video') && playheadX >= c.startPx && playheadX < c.startPx + c.widthPx);
-                    recordingStartPx = playheadX; 
+                    // Buscar si el usuario puso la línea blanca justo encima de una imagen
+                    let activeTarget = projectClips.find(c => (c.type === 'image' || c.type === 'video') && playheadX >= c.startPx && playheadX < c.startPx + c.widthPx);
+                    recordingStartPx = activeTarget ? activeTarget.startPx : playheadX; 
                     
                     voiceRecorder.onstop = () => {
-                        let finalStartPx = recordingStartPx;
                         let realDurationSec = (Date.now() - voiceStartTime) / 1000; 
                         let finalWidth = Math.max(30, realDurationSec * pixelsPerSecond); 
 
-                        // Si había imagen, el audio obedece EXACTAMENTE a la imagen (Snap-to-Image)
-                        if (activeRecordingTarget) {
-                            finalStartPx = activeRecordingTarget.startPx;
-                            finalWidth = activeRecordingTarget.widthPx;
+                        let diffPx = 0;
+                        if(activeTarget) {
+                            diffPx = finalWidth - activeTarget.widthPx;
+                            
+                            // 1. Estirar/Encoger la imagen base y el texto que empiezan exactamente ahí
+                            let clipsToResize = projectClips.filter(c => c.startPx === activeTarget.startPx && (c.type === 'image' || c.type === 'video' || c.type === 'text' || c.type === 'sticker'));
+                            clipsToResize.forEach(c => {
+                                c.widthPx = finalWidth;
+                                let uiEl = document.querySelector(`.clip-block[data-id="${c.id}"]`);
+                                if(uiEl) uiEl.style.width = finalWidth + 'px';
+                            });
+
+                            // 2. Ripple Edit: Desplazar TODAS las imágenes, textos y audios que estén a la derecha para CERO ESPACIOS
+                            projectClips.forEach(c => {
+                                if(c.startPx > activeTarget.startPx) {
+                                    c.startPx += diffPx;
+                                    let uiEl = document.querySelector(`.clip-block[data-id="${c.id}"]`);
+                                    if(uiEl) uiEl.style.left = c.startPx + 'px';
+                                }
+                            });
+                            
+                            // Mover también el marcador amarillo si fue empujado
+                            outMarkerX += diffPx;
+                            updateExportZone();
                         }
 
+                        // Crear el clip de Voz en la línea de tiempo
                         const clipId = Date.now();
-                        const clipUi = document.createElement('div'); clipUi.className = 'clip-block audio'; clipUi.style.left = finalStartPx + 'px'; clipUi.style.width = finalWidth + 'px'; clipUi.setAttribute('data-id', clipId); clipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-microphone"></i> &nbsp;Voz_Off</div>`;
+                        const clipUi = document.createElement('div'); clipUi.className = 'clip-block audio'; clipUi.style.left = recordingStartPx + 'px'; clipUi.style.width = finalWidth + 'px'; clipUi.setAttribute('data-id', clipId); clipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-microphone"></i> &nbsp;Voz_Off</div>`;
                         makeDraggable(clipUi, false, clipId); makeResizable(clipUi, clipId); clipUi.addEventListener('mousedown', selectClip); clipUi.addEventListener('touchstart', selectClip, {passive: true}); document.getElementById('audioTrack').appendChild(clipUi);
                         
                         const blob = new Blob(voiceChunks, { type: 'audio/webm' }); 
                         getBase64(blob, (b64Audio) => {
                             const audioEl = document.createElement('audio'); audioEl.src = b64Audio; mediaContainer.appendChild(audioEl); 
                             audioEl.oncanplay = () => { if(!audioEl.hasAudioConnected) { try { const source = audioCtx.createMediaElementSource(audioEl); source.connect(audioCtx.destination); source.connect(audioMixer); audioEl.hasAudioConnected = true; } catch(e){} } };
-                            projectClips.push({ id: clipId, type: 'audio', startPx: finalStartPx, widthPx: finalWidth, offsetPx: 0, domElement: audioEl, isOffline: false, base64Data: b64Audio }); 
+                            projectClips.push({ id: clipId, type: 'audio', startPx: recordingStartPx, widthPx: finalWidth, offsetPx: 0, domElement: audioEl, isOffline: false, base64Data: b64Audio }); 
                         });
 
                         voiceStream.getTracks().forEach(t => t.stop());
-                        playheadX = finalStartPx + finalWidth;
-                        if (playheadX > outMarkerX) { outMarkerX = playheadX; updateExportZone(); } 
+                        
+                        playheadX = recordingStartPx + finalWidth; // Saltar justo donde termina la voz y la imagen ajustada
                         document.getElementById('playhead').style.left = playheadX + 'px'; updateTimecode(); triggerAutosave();
                     };
                     
                     voiceStartTime = Date.now(); voiceRecorder.start(); isRecordingVoice = true; btn.classList.add('danger'); btn.innerHTML = '<i class="fa-solid fa-stop"></i> Detener Narración'; badge.innerHTML = 'GRABANDO VOZ'; badge.style.display = 'block';
                     if(!isPlaying) togglePlayback(); 
                 } catch(e) { alert("Permite acceso al micrófono."); }
-            } else { voiceRecorder.stop(); isRecordingVoice = false; if(isPlaying) togglePlayback(); btn.classList.remove('danger'); btn.innerHTML = '<i class="fa-solid fa-microphone"></i> Grabar Narración Exacta'; badge.style.display = 'none'; }
+            } else { voiceRecorder.stop(); isRecordingVoice = false; if(isPlaying) togglePlayback(); btn.classList.remove('danger'); btn.innerHTML = '<i class="fa-solid fa-microphone"></i> Grabar Narración Impulsada por Voz'; badge.style.display = 'none'; }
         }
 
         let mainRecorder; let exportChunks = [];
