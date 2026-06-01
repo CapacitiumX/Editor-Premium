@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CapacitiumX Studio V27 - Voz Magnética Inteligente</title>
+    <title>CapacitiumX Studio V28 - DB Profunda y Collage Auto</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --neon: #3b82f6; --bg: #050507; --panel: #121216; --track-bg: #1f1f23; }
@@ -73,6 +73,13 @@
         .project-list { display: flex; flex-direction: column; gap: 8px; max-height: 150px; overflow-y: auto; }
         .project-item { background: #18181c; padding: 10px; border-radius: 6px; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
 
+        /* Estilos Collage */
+        .collage-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 10px; }
+        .collage-card { background: #000; border: 2px solid #333; border-radius: 6px; cursor: pointer; overflow: hidden; transition: 0.2s; text-align: center; }
+        .collage-card:hover { border-color: #10b981; transform: scale(1.02); }
+        .collage-card img { width: 100%; height: 80px; object-fit: cover; display: block; }
+        .collage-title { font-size: 9px; padding: 5px; color: #ccc; font-weight: bold; }
+
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
@@ -80,8 +87,8 @@
 
     <div class="app-header">
         <div style="display: flex; align-items: center; gap: 15px;">
-            <span><i class="fa-solid fa-crown" style="color: #fbbf24;"></i> Estudio Pro V27</span>
-            <div class="autosave-badge" id="saveIndicator"><i class="fa-solid fa-cloud"></i> Guardado</div>
+            <span><i class="fa-solid fa-crown" style="color: #fbbf24;"></i> Estudio Pro V28</span>
+            <div class="autosave-badge" id="saveIndicator"><i class="fa-solid fa-database"></i> DB Activa</div>
         </div>
         <button class="btn-save" id="btnExport" onclick="exportVideo()"><i class="fa-solid fa-rocket"></i> EXPORTAR HASTA LÍNEA AMARILLA</button>
     </div>
@@ -127,8 +134,8 @@
         <div class="tab-menu">
             <div class="tab-btn active" onclick="switchTab('media')"><i class="fa-solid fa-folder-open"></i> Medios</div>
             <div class="tab-btn" onclick="switchTab('fx')"><i class="fa-solid fa-wand-magic-sparkles"></i> Diseño & FX</div>
-            <div class="tab-btn" onclick="switchTab('thumbs')"><i class="fa-solid fa-image"></i> Miniaturas</div>
-            <div class="tab-btn" onclick="switchTab('projects')"><i class="fa-solid fa-floppy-disk"></i> Historial</div>
+            <div class="tab-btn" onclick="switchTab('thumbs')"><i class="fa-solid fa-image"></i> Miniaturas (Collage)</div>
+            <div class="tab-btn" onclick="switchTab('projects')"><i class="fa-solid fa-database"></i> Historial (DB)</div>
         </div>
 
         <!-- MEDIOS -->
@@ -137,7 +144,7 @@
             <input type="file" id="fileUpload" accept="image/*,video/*" multiple style="display:none;" onchange="addMediaToTimeline(event)">
             
             <div style="background: #121216; padding: 10px; border-radius: 6px; margin-top: 5px; border: 1px solid #333;">
-                <label style="font-size: 11px; color: #aaa;">Volumen del Video Original (Ideal para Doblaje)</label>
+                <label style="font-size: 11px; color: #aaa;">Volumen del Video Original</label>
                 <input type="range" id="masterVolume" min="0" max="100" value="100" oninput="updateMasterVolume()">
             </div>
             
@@ -212,47 +219,58 @@
                 </div>
                 <button class="btn primary" onclick="applyFXToSelected()" style="width: 100%; margin-top: 10px; padding: 8px;"><i class="fa-solid fa-check-double"></i> Aplicar al Cuadrito</button>
             </div>
-            
-            <div class="grid-2" style="margin-top: 10px;">
-                <button class="btn primary" onclick="document.getElementById('stickerUpload').click()"><i class="fa-solid fa-image"></i> Añadir Foto/Sticker</button>
-                <div>
-                    <label style="font-size: 11px; color: #aaa;">Tamaño Texto/Sticker</label>
-                    <input type="range" id="elementSize" min="10" max="800" value="60" oninput="updateSelectedOverlaySize()">
-                </div>
-            </div>
-            <input type="file" id="stickerUpload" accept="image/*" multiple style="display:none;" onchange="addStickerToTimeline(event)">
         </div>
 
-        <!-- GENERADOR DE MINIATURAS -->
+        <!-- GENERADOR DE MINIATURAS COLLAGE -->
         <div id="thumbs" class="tab-content">
             <div style="background: #121216; padding: 15px; border-radius: 6px; border: 1px solid #10b981; text-align: center;">
                 <i class="fa-brands fa-youtube" style="font-size: 24px; color: #ef4444; margin-bottom: 10px;"></i>
-                <h3 style="margin: 0 0 5px 0; font-size: 14px;">Creador de Miniaturas (YouTube)</h3>
-                <p style="font-size: 11px; color: #aaa;">Acomoda tus textos, stickers y filtros en el lienzo. Coloca la línea de reproducción blanca en el instante exacto que quieras capturar.</p>
+                <h3 style="margin: 0 0 5px 0; font-size: 14px;">Miniaturas IA (YouTube)</h3>
+                <p style="font-size: 11px; color: #aaa;">El sistema tomará las fotos de tu línea de tiempo para crear 5 propuestas de miniatura automáticas de alto impacto visual.</p>
                 <div class="grid-2" style="margin-top: 15px;">
-                    <button class="btn primary" onclick="generateThumbnail('manual')" style="font-size: 11px;"><i class="fa-solid fa-camera-retro"></i> Captura Manual (Con Textos)</button>
-                    <button class="btn" onclick="generateThumbnail('auto')" style="background: #ef4444; border: none; font-size: 11px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Automático (Video Limpio)</button>
+                    <button class="btn primary" onclick="generateThumbnail('manual')" style="font-size: 11px;"><i class="fa-solid fa-camera-retro"></i> Captura Lienzo Actual</button>
+                    <button class="btn" onclick="generateAutoCollages()" style="background: #ef4444; border: none; font-size: 11px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Generar 5 Opciones de Collage</button>
+                </div>
+                
+                <div id="collageResults" class="collage-container" style="display: none;">
+                    <!-- Se llenará dinámicamente con JS -->
                 </div>
             </div>
         </div>
 
-        <!-- PROYECTOS / AUTOGUARDADO -->
+        <!-- PROYECTOS / AUTOGUARDADO INDEXEDDB -->
         <div id="projects" class="tab-content">
             <div style="background: #121216; padding: 15px; border-radius: 6px; border: 1px solid #10b981;">
                 <label style="font-size: 11px; color: #aaa;">Nombrar Proyecto Actual</label>
                 <div style="display: flex; gap: 5px; margin-top: 5px;">
                     <input type="text" id="projectName" placeholder="Ej: Video Automatizado..." value="Proyecto Sin Título">
-                    <button class="btn primary" onclick="forceSaveProject()"><i class="fa-solid fa-save"></i> Guardar</button>
+                    <button class="btn primary" onclick="forceSaveProject()"><i class="fa-solid fa-save"></i> Guardar en DB</button>
                 </div>
+                <p style="font-size: 9px; color: #888; margin-top: 5px;">*Usando IndexedDB local para evadir el límite de 5MB del navegador. Tus fotos y audios se guardarán de forma profunda.</p>
             </div>
 
-            <h4 style="font-size: 12px; border-bottom: 1px solid #333; padding-bottom: 5px; margin: 15px 0 5px 0;">Historial de Proyectos</h4>
+            <h4 style="font-size: 12px; border-bottom: 1px solid #333; padding-bottom: 5px; margin: 15px 0 5px 0;">Historial de Proyectos (DB)</h4>
             <div class="project-list" id="projectListDisplay"></div>
-            <div class="btn danger" onclick="clearProjects()" style="margin-top: 10px;"><i class="fa-solid fa-trash"></i> Borrar Todo el Historial</div>
+            <div class="btn danger" onclick="clearProjects()" style="margin-top: 10px;"><i class="fa-solid fa-trash"></i> Vaciar Base de Datos Completa</div>
         </div>
     </div>
 
     <script>
+        // --- BASE DE DATOS PROFUNDA (INDEXEDDB) ---
+        let db;
+        const dbName = "CapacitiumX_StudioDB";
+        const requestDB = indexedDB.open(dbName, 1);
+        
+        requestDB.onupgradeneeded = function(e) {
+            let localDb = e.target.result;
+            if (!localDb.objectStoreNames.contains('projects')) {
+                localDb.createObjectStore('projects', { keyPath: 'id' });
+            }
+        };
+        
+        requestDB.onsuccess = function(e) { db = e.target.result; loadProjectList(); };
+        requestDB.onerror = function(e) { console.error("Error IndexedDB:", e); };
+
         let audioCtx; let audioMixer; 
         function initAudio() {
             if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); audioMixer = audioCtx.createMediaStreamDestination(); }
@@ -268,11 +286,12 @@
         const EXPORT_FILTERS = ['sepia(100%)', 'grayscale(100%) contrast(120%)', 'brightness(110%) contrast(120%) saturate(140%)', 'contrast(130%) saturate(10%) sepia(30%) hue-rotate(180deg)', 'brightness(80%) contrast(140%)', 'hue-rotate(90deg) saturate(150%)', 'invert(100%)', 'sepia(50%) hue-rotate(320deg) saturate(200%)', 'sepia(50%) hue-rotate(200deg) saturate(150%)', 'contrast(200%) grayscale(100%)', 'saturate(300%)', 'blur(3px) contrast(150%)', 'brightness(150%)', 'sepia(80%) contrast(110%) brightness(90%)'];
         const EXPORT_ANIMS = ['fade', 'zoom-in', 'zoom-out', 'slide-left', 'slide-right', 'slide-up', 'slide-down', 'spin-in', 'pop', 'shake', 'pulse', 'flash', 'cinematic-pan', 'blur-in'];
 
-        // --- SISTEMA DE AUTOGUARDADO ---
         let currentProjectId = Date.now().toString();
 
         function triggerAutosave() {
-            const ind = document.getElementById('saveIndicator'); ind.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+            if(!db) return;
+            const ind = document.getElementById('saveIndicator'); ind.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando DB...';
+            
             let saveData = projectClips.map(c => {
                 return {
                     id: c.id, type: c.type, startPx: c.startPx, widthPx: c.widthPx, offsetPx: c.offsetPx,
@@ -281,94 +300,115 @@
                     base64Data: c.base64Data || null, isOffline: (c.type === 'video') 
                 };
             });
+
             let projName = document.getElementById('projectName').value;
             let projectInfo = { id: currentProjectId, name: projName, date: new Date().toLocaleString(), markers: { in: inMarkerX, out: outMarkerX }, clips: saveData };
-            let allProjects = JSON.parse(localStorage.getItem('capacitiumProjects') || '[]');
-            let existingIdx = allProjects.findIndex(p => p.id === currentProjectId);
-            if(existingIdx >= 0) { allProjects[existingIdx] = projectInfo; } else { allProjects.push(projectInfo); }
-            try { localStorage.setItem('capacitiumProjects', JSON.stringify(allProjects)); setTimeout(() => { ind.innerHTML = '<i class="fa-solid fa-check" style="color:#10b981;"></i> Guardado'; loadProjectList(); }, 500); } 
-            catch (e) { ind.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Memoria Llena'; }
+            
+            let tx = db.transaction(['projects'], 'readwrite');
+            let store = tx.objectStore('projects');
+            store.put(projectInfo);
+            
+            tx.oncomplete = function() {
+                setTimeout(() => { ind.innerHTML = '<i class="fa-solid fa-check" style="color:#10b981;"></i> DB Guardada'; loadProjectList(); }, 300);
+            };
+            tx.onerror = function() { ind.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Error de DB'; };
         }
 
         function forceSaveProject() { triggerAutosave(); }
 
         function loadProjectList() {
+            if(!db) return;
             const container = document.getElementById('projectListDisplay'); container.innerHTML = '';
-            let allProjects = JSON.parse(localStorage.getItem('capacitiumProjects') || '[]');
-            allProjects.reverse().forEach(p => {
-                let div = document.createElement('div'); div.className = 'project-item';
-                div.innerHTML = `
-                    <div><strong>${p.name}</strong><br><span style="font-size:8px; color:#888;">${p.date}</span></div> 
-                    <div style="display:flex; gap: 5px;">
-                        <button class="btn primary" style="padding: 4px 8px;" onclick="loadProject('${p.id}')" title="Cargar"><i class="fa-solid fa-folder-open"></i></button>
-                        <button class="btn danger" style="padding: 4px 8px;" onclick="deleteSingleProject('${p.id}')" title="Borrar este proyecto"><i class="fa-solid fa-trash"></i></button>
-                    </div>`;
-                container.appendChild(div);
-            });
+            let tx = db.transaction(['projects'], 'readonly');
+            let store = tx.objectStore('projects');
+            let req = store.getAll();
+            req.onsuccess = function() {
+                let allProjects = req.result;
+                allProjects.reverse().forEach(p => {
+                    let div = document.createElement('div'); div.className = 'project-item';
+                    div.innerHTML = `
+                        <div><strong>${p.name}</strong><br><span style="font-size:8px; color:#888;">${p.date}</span></div> 
+                        <div style="display:flex; gap: 5px;">
+                            <button class="btn primary" style="padding: 4px 8px;" onclick="loadProject('${p.id}')" title="Cargar"><i class="fa-solid fa-folder-open"></i></button>
+                            <button class="btn danger" style="padding: 4px 8px;" onclick="deleteSingleProject('${p.id}')" title="Borrar este proyecto"><i class="fa-solid fa-trash"></i></button>
+                        </div>`;
+                    container.appendChild(div);
+                });
+            };
         }
         
         function deleteSingleProject(id) {
-            if(confirm("¿Seguro que quieres borrar este proyecto específico del historial?")) {
-                let allProjects = JSON.parse(localStorage.getItem('capacitiumProjects') || '[]');
-                allProjects = allProjects.filter(p => p.id !== id); localStorage.setItem('capacitiumProjects', JSON.stringify(allProjects));
-                loadProjectList(); if(currentProjectId === id) alert("El proyecto actual fue borrado del historial.");
+            if(confirm("¿Seguro que quieres borrar este proyecto de la Base de Datos?")) {
+                let tx = db.transaction(['projects'], 'readwrite');
+                let store = tx.objectStore('projects');
+                store.delete(id);
+                tx.oncomplete = function() { loadProjectList(); if(currentProjectId === id) alert("El proyecto actual fue borrado."); };
             }
         }
-        function clearProjects() { if(confirm("¿Borrar TODO el historial permanentemente?")) { localStorage.removeItem('capacitiumProjects'); loadProjectList(); } }
 
-        function loadProject(id) {
-            let allProjects = JSON.parse(localStorage.getItem('capacitiumProjects') || '[]');
-            let p = allProjects.find(x => x.id === id); if(!p) return;
-            
-            document.getElementById('videoTrack').innerHTML = '<div class="track-label"><i class="fa-solid fa-video"></i> Vid</div>';
-            document.getElementById('imageTrack').innerHTML = '<div class="track-label"><i class="fa-solid fa-image"></i> Img</div>';
-            document.getElementById('textTrack').innerHTML = '<div class="track-label"><i class="fa-solid fa-font"></i> Txt</div>';
-            document.getElementById('audioTrack').innerHTML = '<div class="track-label"><i class="fa-solid fa-microphone"></i> Voz</div>';
-            mediaContainer.innerHTML = ''; projectClips = [];
-
-            currentProjectId = p.id; document.getElementById('projectName').value = p.name;
-            inMarkerX = p.markers.in || 45; outMarkerX = p.markers.out || 300; updateExportZone();
-
-            p.clips.forEach(c => {
-                const clipUi = document.createElement('div');
-                clipUi.className = `clip-block ${c.type === 'text' ? 'text' : (c.type === 'audio' ? 'audio' : (c.type === 'image' || c.type === 'sticker' ? 'image' : ''))}`;
-                let domEl = null; let imgObj = null;
-                if ((c.type === 'image' || c.type === 'sticker') && c.base64Data) { let img = new Image(); img.src = c.base64Data; if(c.type === 'image') domEl = img; else imgObj = img; c.isOffline = false; }
-                if (c.type === 'audio' && c.base64Data) {
-                    let audioEl = document.createElement('audio'); audioEl.src = c.base64Data; mediaContainer.appendChild(audioEl);
-                    audioEl.oncanplay = () => { if (!audioEl.hasAudioConnected) { try { const source = audioCtx.createMediaElementSource(audioEl); source.connect(audioCtx.destination); source.connect(audioMixer); audioEl.hasAudioConnected = true; } catch(e) {} } };
-                    domEl = audioEl; c.isOffline = false;
-                }
-
-                if(c.isOffline) clipUi.classList.add('offline');
-                clipUi.style.left = c.startPx + 'px'; clipUi.style.width = c.widthPx + 'px'; clipUi.setAttribute('data-id', c.id);
-                
-                let icon = c.type === 'video' ? 'film' : (c.type === 'audio' ? 'microphone' : (c.type === 'text' ? 'font' : 'image'));
-                let title = c.type === 'text' ? c.content.substring(0,6) : (c.isOffline ? 'Toca para reconectar' : (c.type === 'sticker' ? 'Sticker' : (c.type === 'audio' ? 'Voz_Off' : 'Foto')));
-                clipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-${icon}"></i> &nbsp;${title}</div>`;
-                if (c.filter !== 'none' || c.anim !== 'none') clipUi.innerHTML += `<div class="fx-badge"><i class="fa-solid fa-wand-magic-sparkles"></i></div>`;
-                
-                makeDraggable(clipUi, false, c.id); makeResizable(clipUi, c.id); clipUi.addEventListener('mousedown', selectClip); clipUi.addEventListener('touchstart', selectClip, {passive: true});
-                
-                if(c.isOffline) {
-                    clipUi.addEventListener('dblclick', () => {
-                        let input = document.createElement('input'); input.type = 'file'; input.accept = c.type === 'audio' ? 'audio/*,video/*' : 'image/*,video/*';
-                        input.onchange = (e) => {
-                            let file = e.target.files[0]; if(!file) return; let url = URL.createObjectURL(file); let mediaEl;
-                            if(c.type === 'video' || c.type === 'audio') { mediaEl = document.createElement('video'); mediaEl.src = url; mediaEl.crossOrigin = "anonymous"; mediaContainer.appendChild(mediaEl); } 
-                            else { mediaEl = new Image(); mediaEl.src = url; }
-                            let found = projectClips.find(pc => pc.id == c.id);
-                            if(found) { found.domElement = mediaEl; found.isOffline = false; clipUi.classList.remove('offline'); clipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-${icon}"></i> &nbsp;${file.name.substring(0,6)}</div>`; triggerAutosave(); }
-                        }; input.click();
-                    });
-                }
-                let trackId = c.type === 'text' ? 'textTrack' : (c.type === 'audio' ? 'audioTrack' : (c.type === 'sticker' || c.type === 'image' ? 'imageTrack' : 'videoTrack'));
-                document.getElementById(trackId).appendChild(clipUi); projectClips.push({...c, domElement: domEl, imgObj: imgObj});
-            });
-            resetPlayhead(); alert("Proyecto cargado.");
+        function clearProjects() { 
+            if(confirm("¿Borrar TODO el historial permanentemente?")) { 
+                let tx = db.transaction(['projects'], 'readwrite');
+                tx.objectStore('projects').clear();
+                tx.oncomplete = function() { loadProjectList(); };
+            } 
         }
 
-        // --- MARCADORES LÍNEA AMARILLA ---
+        function loadProject(id) {
+            let tx = db.transaction(['projects'], 'readonly');
+            let req = tx.objectStore('projects').get(id);
+            req.onsuccess = function(e) {
+                let p = e.target.result; if(!p) return;
+                
+                document.getElementById('videoTrack').innerHTML = '<div class="track-label"><i class="fa-solid fa-video"></i> Vid</div>';
+                document.getElementById('imageTrack').innerHTML = '<div class="track-label"><i class="fa-solid fa-image"></i> Img</div>';
+                document.getElementById('textTrack').innerHTML = '<div class="track-label"><i class="fa-solid fa-font"></i> Txt</div>';
+                document.getElementById('audioTrack').innerHTML = '<div class="track-label"><i class="fa-solid fa-microphone"></i> Voz</div>';
+                mediaContainer.innerHTML = ''; projectClips = [];
+
+                currentProjectId = p.id; document.getElementById('projectName').value = p.name;
+                inMarkerX = p.markers.in || 45; outMarkerX = p.markers.out || 300; updateExportZone();
+
+                p.clips.forEach(c => {
+                    const clipUi = document.createElement('div');
+                    clipUi.className = `clip-block ${c.type === 'text' ? 'text' : (c.type === 'audio' ? 'audio' : (c.type === 'image' || c.type === 'sticker' ? 'image' : ''))}`;
+                    let domEl = null; let imgObj = null;
+                    if ((c.type === 'image' || c.type === 'sticker') && c.base64Data) { let img = new Image(); img.src = c.base64Data; if(c.type === 'image') domEl = img; else imgObj = img; c.isOffline = false; }
+                    if (c.type === 'audio' && c.base64Data) {
+                        let audioEl = document.createElement('audio'); audioEl.src = c.base64Data; mediaContainer.appendChild(audioEl);
+                        audioEl.oncanplay = () => { if (!audioEl.hasAudioConnected) { try { const source = audioCtx.createMediaElementSource(audioEl); source.connect(audioCtx.destination); source.connect(audioMixer); audioEl.hasAudioConnected = true; } catch(e) {} } };
+                        domEl = audioEl; c.isOffline = false;
+                    }
+
+                    if(c.isOffline) clipUi.classList.add('offline');
+                    clipUi.style.left = c.startPx + 'px'; clipUi.style.width = c.widthPx + 'px'; clipUi.setAttribute('data-id', c.id);
+                    
+                    let icon = c.type === 'video' ? 'film' : (c.type === 'audio' ? 'microphone' : (c.type === 'text' ? 'font' : 'image'));
+                    let title = c.type === 'text' ? c.content.substring(0,6) : (c.isOffline ? 'Toca para reconectar' : (c.type === 'sticker' ? 'Sticker' : (c.type === 'audio' ? 'Voz_Off' : 'Foto')));
+                    clipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-${icon}"></i> &nbsp;${title}</div>`;
+                    if (c.filter !== 'none' || c.anim !== 'none') clipUi.innerHTML += `<div class="fx-badge"><i class="fa-solid fa-wand-magic-sparkles"></i></div>`;
+                    
+                    makeDraggable(clipUi, false, c.id); makeResizable(clipUi, c.id); clipUi.addEventListener('mousedown', selectClip); clipUi.addEventListener('touchstart', selectClip, {passive: true});
+                    
+                    if(c.isOffline) {
+                        clipUi.addEventListener('dblclick', () => {
+                            let input = document.createElement('input'); input.type = 'file'; input.accept = c.type === 'audio' ? 'audio/*,video/*' : 'image/*,video/*';
+                            input.onchange = (e) => {
+                                let file = e.target.files[0]; if(!file) return; let url = URL.createObjectURL(file); let mediaEl;
+                                if(c.type === 'video' || c.type === 'audio') { mediaEl = document.createElement('video'); mediaEl.src = url; mediaEl.crossOrigin = "anonymous"; mediaContainer.appendChild(mediaEl); } 
+                                else { mediaEl = new Image(); mediaEl.src = url; }
+                                let found = projectClips.find(pc => pc.id == c.id);
+                                if(found) { found.domElement = mediaEl; found.isOffline = false; clipUi.classList.remove('offline'); clipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-${icon}"></i> &nbsp;${file.name.substring(0,6)}</div>`; triggerAutosave(); }
+                            }; input.click();
+                        });
+                    }
+                    let trackId = c.type === 'text' ? 'textTrack' : (c.type === 'audio' ? 'audioTrack' : (c.type === 'sticker' || c.type === 'image' ? 'imageTrack' : 'videoTrack'));
+                    document.getElementById(trackId).appendChild(clipUi); projectClips.push({...c, domElement: domEl, imgObj: imgObj});
+                });
+                resetPlayhead(); alert("Proyecto cargado exitosamente desde DB.");
+            };
+        }
+
         let inMarkerX = 45; let outMarkerX = 300; 
         function updateExportZone() { document.getElementById('markerIn').style.left = inMarkerX + 'px'; document.getElementById('markerOut').style.left = outMarkerX + 'px'; document.getElementById('exportZone').style.left = inMarkerX + 'px'; document.getElementById('exportZone').style.width = Math.max(0, outMarkerX - inMarkerX) + 'px'; triggerAutosave(); }
         updateExportZone();
@@ -386,7 +426,6 @@
 
         function updateMasterVolume() { let vol = document.getElementById('masterVolume').value / 100; projectClips.forEach(c => { if (c.type === 'video' && c.domElement) c.domElement.volume = vol; }); }
 
-        // --- SISTEMA FX ---
         function applyFXToSelected() {
             if(!selectedClipEl) return alert("Toca un cuadrito en la línea de tiempo primero.");
             let id = selectedClipEl.getAttribute('data-id'); let clip = projectClips.find(c => c.id == id);
@@ -419,7 +458,6 @@
             return {scale, tx, ty, angle, alpha, extraFilter};
         }
 
-        // --- TIJERAS ---
         function splitSelectedClip() {
             if(!selectedClipEl) return alert("Selecciona un clip para cortarlo.");
             const id = selectedClipEl.getAttribute('data-id'); const orig = projectClips.find(c => c.id == id);
@@ -440,7 +478,6 @@
             triggerAutosave();
         }
 
-        // --- TEXTO EN VIVO ---
         function liveUpdateText() {
             if(selectedClipEl) {
                 const id = selectedClipEl.getAttribute('data-id'); let clipObj = projectClips.find(c => c.id == id);
@@ -463,24 +500,21 @@
 
         function addTextToTimeline() {
             let inputVal = document.getElementById('overlayText').value.trim(); let textContent = inputVal !== '' ? inputVal : "Texto";
-            const clipId = Date.now(); const clipUi = document.createElement('div'); clipUi.className = 'clip-block text'; clipUi.style.left = playheadX + 'px'; clipUi.style.width = '450px'; clipUi.setAttribute('data-id', clipId); 
+            const clipId = Date.now(); const clipUi = document.createElement('div'); clipUi.className = 'clip-block text'; clipUi.style.left = playheadX + 'px'; clipUi.style.width = '150px'; clipUi.setAttribute('data-id', clipId); 
             clipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-font"></i> &nbsp;${textContent.substring(0,6)}</div>`;
             makeDraggable(clipUi, false, clipId); makeResizable(clipUi, clipId); clipUi.addEventListener('mousedown', selectClip); clipUi.addEventListener('touchstart', selectClip, {passive: true}); document.getElementById('textTrack').appendChild(clipUi);
 
             let fontColor = document.getElementById('overlayColor').value || '#ffffff'; let fontType = document.getElementById('textFont').value || 'sans-serif'; let hasBg = document.getElementById('useBgOption') ? document.getElementById('useBgOption').value === 'color' : false; let bgColor = document.getElementById('overlayBg').value || '#e50000';
 
-            projectClips.push({ id: clipId, type: 'text', content: textContent, color: fontColor, font: fontType, useBg: hasBg, bgColor: bgColor, x: 640, y: 360, size: 80, startPx: playheadX, widthPx: 450, offsetPx: 0, filter: 'none', anim: 'none', isOffline: false });
+            projectClips.push({ id: clipId, type: 'text', content: textContent, color: fontColor, font: fontType, useBg: hasBg, bgColor: bgColor, x: 640, y: 360, size: 80, startPx: playheadX, widthPx: 150, offsetPx: 0, filter: 'none', anim: 'none', isOffline: false });
             clipUi.dispatchEvent(new Event('mousedown')); document.getElementById('overlayText').value = textContent;
-
-            let endClip = playheadX + 450; if (endClip > outMarkerX) { outMarkerX = endClip; updateExportZone(); } playheadX += 450; document.getElementById('playhead').style.left = playheadX + 'px'; updateTimecode(); triggerAutosave();
+            let endClip = playheadX + 150; if (endClip > outMarkerX) { outMarkerX = endClip; updateExportZone(); } playheadX += 160; document.getElementById('playhead').style.left = playheadX + 'px'; updateTimecode(); triggerAutosave();
         }
 
         function getBase64(file, callback) { var reader = new FileReader(); reader.readAsDataURL(file); reader.onload = function () { callback(reader.result); }; }
 
-        // --- IMPORTACIÓN MULTIPLE DE JALÓN (CERO ESPACIOS) ---
         function addMediaToTimeline(event) {
             initAudio(); const files = event.target.files; if (!files || files.length === 0) return; 
-
             for (let i = 0; i < files.length; i++) {
                 const file = files[i]; const isVideo = file.type.startsWith('video/'); const url = URL.createObjectURL(file); const fileNameRaw = file.name.replace(/\.[^/.]+$/, "");
                 const mediaClipId = Date.now() + 'm' + i; const currentPx = playheadX;
@@ -503,7 +537,6 @@
                     projectClips.push({ id: mediaClipId, type: 'image', startPx: currentPx, widthPx: 450, offsetPx: 0, domElement: mediaElement, filter: randomFilter, anim: randomAnim, isOffline: false, base64Data: null });
                 }
 
-                // TÍTULO AUTO - AMARILLO, IMPACT, ABAJO
                 const textClipId = Date.now() + 't' + i; const textClipUi = document.createElement('div'); textClipUi.className = 'clip-block text has-fx'; textClipUi.style.left = currentPx + 'px'; textClipUi.style.width = '450px'; textClipUi.setAttribute('data-id', textClipId);
                 textClipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-font"></i> &nbsp;${fileNameRaw.substring(0,8)}</div><div class="fx-badge"><i class="fa-solid fa-wand-magic-sparkles"></i></div>`;
                 makeDraggable(textClipUi, false, textClipId); makeResizable(textClipUi, textClipId); textClipUi.addEventListener('mousedown', selectClip); textClipUi.addEventListener('touchstart', selectClip, {passive: true}); document.getElementById('textTrack').appendChild(textClipUi);
@@ -513,20 +546,6 @@
                 let endClip = currentPx + 450; if (endClip > outMarkerX) { outMarkerX = endClip; updateExportZone(); } playheadX += 450; 
             }
             document.getElementById('playhead').style.left = playheadX + 'px'; updateTimecode(); triggerAutosave(); event.target.value = ''; 
-        }
-
-        function addStickerToTimeline(event) {
-            const files = event.target.files; if (!files || files.length === 0) return; 
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i]; const img = new Image(); const url = URL.createObjectURL(file); img.src = url; const currentPx = playheadX; const clipId = Date.now() + i;
-                img.onload = () => {
-                    const clipUi = document.createElement('div'); clipUi.className = 'clip-block image'; clipUi.style.left = currentPx + 'px'; clipUi.style.width = '100px'; clipUi.setAttribute('data-id', clipId); clipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-face-smile"></i> &nbsp;Sticker</div>`;
-                    makeDraggable(clipUi, false, clipId); makeResizable(clipUi, clipId); clipUi.addEventListener('mousedown', selectClip); clipUi.addEventListener('touchstart', selectClip, {passive: true}); document.getElementById('textTrack').appendChild(clipUi); 
-                    getBase64(file, (b64) => { projectClips.push({ id: clipId, type: 'sticker', imgObj: img, ratio: img.height / img.width, x: 640, y: 360, size: 300, startPx: currentPx, widthPx: 100, offsetPx: 0, filter: 'none', anim: 'none', isOffline: false, base64Data: b64 }); triggerAutosave(); });
-                }; 
-                let endClip = currentPx + 100; if (endClip > outMarkerX) { outMarkerX = endClip; updateExportZone(); } playheadX += 100; 
-            }
-            document.getElementById('playhead').style.left = playheadX + 'px'; updateTimecode(); event.target.value = '';
         }
 
         function duplicateSelectedClip() {
@@ -542,7 +561,6 @@
         function updateSelectedOverlaySize() { if (selectedClipEl) { const id = selectedClipEl.getAttribute('data-id'); let clipObj = projectClips.find(c => c.id == id); if (clipObj && (clipObj.type === 'text' || clipObj.type === 'sticker')) { clipObj.size = parseInt(document.getElementById('elementSize').value); triggerAutosave(); } } }
         function deleteSelectedClip() { if(selectedClipEl) { const id = selectedClipEl.getAttribute('data-id'); let clipObj = projectClips.find(c => c.id == id); if (clipObj && clipObj.domElement) clipObj.domElement.remove(); projectClips = projectClips.filter(c => c.id != id); selectedClipEl.remove(); selectedClipEl = null; triggerAutosave(); } }
 
-        // --- ARRASTRE ---
         function makeDraggable(element, isPlayhead = false, clipId = null) {
             let startX = 0, currentLeft = 0; const dragTarget = isPlayhead ? element : element.querySelector('.drag-area');
             function dragStart(e) { if(isPlaying) togglePlayback(); e.preventDefault(); startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX; currentLeft = parseInt(element.style.left || 45); document.addEventListener(e.type.includes('touch') ? 'touchmove' : 'mousemove', dragMove, {passive: false}); document.addEventListener(e.type.includes('touch') ? 'touchend' : 'mouseup', dragEnd); }
@@ -566,7 +584,6 @@
             handle.addEventListener('mousedown', resizeStart); handle.addEventListener('touchstart', resizeStart, {passive: false});
         }
 
-        // TÁCTIL EN CANVAS
         function getCanvasPos(e) { const rect = canvas.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; return { x: (clientX - rect.left) * (canvas.width / rect.width), y: (clientY - rect.top) * (canvas.height / rect.height) }; }
         function handleCanvasStart(e) {
             const pos = getCanvasPos(e); let found = null;
@@ -583,7 +600,7 @@
         function handleCanvasEnd(e) { if(isDraggingOverlay){ isDraggingOverlay = false; triggerAutosave(); } }
         canvas.addEventListener('mousedown', handleCanvasStart); canvas.addEventListener('touchstart', handleCanvasStart, {passive: false}); canvas.addEventListener('mousemove', handleCanvasMove);  canvas.addEventListener('touchmove', handleCanvasMove, {passive: false}); window.addEventListener('mouseup', handleCanvasEnd); window.addEventListener('touchend', handleCanvasEnd);
 
-        // --- RENDERIZADO VISUAL LIMITADO ---
+        // --- RENDERIZADO VISUAL ---
         function renderCanvasGraphics() {
             ctx.fillStyle = "#111115"; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -637,10 +654,10 @@
                 }
             });
         }
-
         function renderLoop() { renderCanvasGraphics(); requestAnimationFrame(renderLoop); }
         renderLoop();
 
+        // --- SISTEMA DE MINIATURAS MEJORADO (COLLAGES 5 OPCIONES) ---
         function generateThumbnail(mode) {
             if (selectedClipEl) { selectedClipEl.classList.remove('selected'); selectedClipEl = null; }
             if(mode === 'auto') { projectClips.forEach(c => { if(c.type === 'text' || c.type === 'sticker') c.tempHidden = true; }); }
@@ -652,6 +669,81 @@
             }, 100);
         }
 
+        // GENERADOR DE 5 COLLAGES AUTOMÁTICOS
+        function generateAutoCollages() {
+            // Obtener todas las imágenes únicas cargadas en el proyecto
+            let images = projectClips.filter(c => c.type === 'image' && c.domElement).map(c => c.domElement);
+            if (images.length < 2) return alert("Sube al menos 2 fotos al editor para poder generar collages automáticos.");
+            
+            const resultsContainer = document.getElementById('collageResults');
+            resultsContainer.innerHTML = '';
+            resultsContainer.style.display = 'grid';
+
+            // Crear 5 lienzos virtuales ocultos para hacer las composiciones
+            const w = 1280; const h = 720;
+            
+            // Función auxiliar para recortar imagen tipo "Cover"
+            function drawCover(ctxTemp, img, x, y, cw, ch) {
+                let imgRatio = img.width / img.height; let canvasRatio = cw / ch;
+                let sx, sy, sw, sh;
+                if (imgRatio > canvasRatio) { sh = img.height; sw = img.height * canvasRatio; sx = (img.width - sw) / 2; sy = 0; } 
+                else { sw = img.width; sh = img.width / canvasRatio; sx = 0; sy = (img.height - sh) / 2; }
+                ctxTemp.drawImage(img, sx, sy, sw, sh, x, y, cw, ch);
+            }
+
+            // Opción 1: Split Vertical (Mitad y Mitad)
+            let c1 = document.createElement('canvas'); c1.width = w; c1.height = h; let ctx1 = c1.getContext('2d');
+            drawCover(ctx1, images[0], 0, 0, w/2, h); drawCover(ctx1, images[1], w/2, 0, w/2, h);
+            ctx1.fillStyle = "white"; ctx1.fillRect(w/2 - 5, 0, 10, h); // Borde blanco
+            addCollageOption(c1, "Split Vertical");
+
+            // Opción 2: Split Horizontal (Arriba y Abajo)
+            let c2 = document.createElement('canvas'); c2.width = w; c2.height = h; let ctx2 = c2.getContext('2d');
+            drawCover(ctx2, images[0], 0, 0, w, h/2); drawCover(ctx2, images[1], 0, h/2, w, h/2);
+            ctx2.fillStyle = "white"; ctx2.fillRect(0, h/2 - 5, w, 10);
+            addCollageOption(c2, "Split Horizontal");
+
+            // Opción 3: Tríptico (Principal izquierda, 2 derechas)
+            let c3 = document.createElement('canvas'); c3.width = w; c3.height = h; let ctx3 = c3.getContext('2d');
+            let img3 = images.length > 2 ? images[2] : images[0];
+            drawCover(ctx3, images[0], 0, 0, w * 0.66, h); 
+            drawCover(ctx3, images[1], w * 0.66, 0, w * 0.34, h/2); 
+            drawCover(ctx3, img3, w * 0.66, h/2, w * 0.34, h/2);
+            ctx3.fillStyle = "white"; ctx3.fillRect(w * 0.66 - 5, 0, 10, h); ctx3.fillRect(w * 0.66, h/2 - 5, w * 0.34, 10);
+            addCollageOption(c3, "Tríptico Dinámico");
+
+            // Opción 4: Cuadrícula 2x2
+            let c4 = document.createElement('canvas'); c4.width = w; c4.height = h; let ctx4 = c4.getContext('2d');
+            let img4 = images.length > 3 ? images[3] : images[1];
+            drawCover(ctx4, images[0], 0, 0, w/2, h/2); drawCover(ctx4, images[1], w/2, 0, w/2, h/2);
+            drawCover(ctx4, img3, 0, h/2, w/2, h/2); drawCover(ctx4, img4, w/2, h/2, w/2, h/2);
+            ctx4.fillStyle = "white"; ctx4.fillRect(w/2 - 5, 0, 10, h); ctx4.fillRect(0, h/2 - 5, w, 10);
+            addCollageOption(c4, "Cuadrícula 2x2");
+
+            // Opción 5: Diagonal Cinemática (Aproximación con polígonos)
+            let c5 = document.createElement('canvas'); c5.width = w; c5.height = h; let ctx5 = c5.getContext('2d');
+            ctx5.fillStyle = "black"; ctx5.fillRect(0,0,w,h);
+            ctx5.save(); ctx5.beginPath(); ctx5.moveTo(0,0); ctx5.lineTo(w*0.7,0); ctx5.lineTo(w*0.3,h); ctx5.lineTo(0,h); ctx5.closePath(); ctx5.clip(); drawCover(ctx5, images[0], 0, 0, w, h); ctx5.restore();
+            ctx5.save(); ctx5.beginPath(); ctx5.moveTo(w*0.7,0); ctx5.lineTo(w,0); ctx5.lineTo(w,h); ctx5.lineTo(w*0.3,h); ctx5.closePath(); ctx5.clip(); drawCover(ctx5, images[1], 0, 0, w, h); ctx5.restore();
+            ctx5.strokeStyle = "white"; ctx5.lineWidth = 15; ctx5.beginPath(); ctx5.moveTo(w*0.7, 0); ctx5.lineTo(w*0.3, h); ctx5.stroke();
+            addCollageOption(c5, "Corte Diagonal");
+            
+            alert("¡Se generaron 5 propuestas de miniatura! Haz clic en la que más te guste abajo para descargarla.");
+        }
+
+        function addCollageOption(canvasObj, titleStr) {
+            const dataUrl = canvasObj.toDataURL('image/jpeg', 0.95);
+            const container = document.getElementById('collageResults');
+            const card = document.createElement('div'); card.className = 'collage-card';
+            card.innerHTML = `<img src="${dataUrl}"><div class="collage-title">${titleStr} <i class="fa-solid fa-download"></i></div>`;
+            card.onclick = () => {
+                const a = document.createElement('a'); a.style.display = 'none'; a.href = dataUrl; a.download = `Collage_CapacitiumX_${Date.now()}.jpg`;
+                document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(dataUrl);
+            };
+            container.appendChild(card);
+        }
+
+        // --- SISTEMA DE TIEMPOS ---
         let globalTime = 0; let isPlaying = false; let playInterval; let playheadX = 45; const pixelsPerSecond = 20; 
         function updateTimecode() { let secs = Math.floor(globalTime / 10); let decs = globalTime % 10; document.getElementById('timecode').innerText = `00:${secs.toString().padStart(2,'0')}.${decs}`; }
         function togglePlayback() {
@@ -670,8 +762,8 @@
             projectClips.forEach(clip => { if((clip.type === 'video' || clip.type === 'audio') && clip.domElement && !clip.isOffline) { let mediaTime = ((playheadX - clip.startPx) + clip.offsetPx) / pixelsPerSecond; if(mediaTime >= 0) clip.domElement.currentTime = mediaTime; } });
         }
 
-        // --- MAGIA: AUDIO DICTA EL TAMAÑO DE LA IMAGEN (VOICE-DRIVEN RIPPLE EDIT) ---
-        let isRecordingVoice = false; let voiceStream; let voiceRecorder; let voiceChunks = []; let voiceStartTime = 0; let recordingStartPx = 0;
+        // --- MAGIA: AUDIO DICTA EL TAMAÑO DE LA IMAGEN ---
+        let isRecordingVoice = false; let voiceStream; let voiceRecorder; let voiceChunks = []; let voiceStartTime = 0; let recordingStartPx = 0; let activeTarget = null;
         
         async function toggleVoiceRecord() {
             initAudio(); const btn = document.getElementById('btnRecVoice'); const badge = document.getElementById('recBadge');
@@ -679,8 +771,7 @@
                 try {
                     voiceStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); voiceChunks = []; voiceRecorder = new MediaRecorder(voiceStream); voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data); };
                     
-                    // Buscar si el usuario puso la línea blanca justo encima de una imagen
-                    let activeTarget = projectClips.find(c => (c.type === 'image' || c.type === 'video') && playheadX >= c.startPx && playheadX < c.startPx + c.widthPx);
+                    activeTarget = projectClips.find(c => (c.type === 'image' || c.type === 'video') && playheadX >= c.startPx && playheadX < c.startPx + c.widthPx);
                     recordingStartPx = activeTarget ? activeTarget.startPx : playheadX; 
                     
                     voiceRecorder.onstop = () => {
@@ -691,7 +782,6 @@
                         if(activeTarget) {
                             diffPx = finalWidth - activeTarget.widthPx;
                             
-                            // 1. Estirar/Encoger la imagen base y el texto que empiezan exactamente ahí
                             let clipsToResize = projectClips.filter(c => c.startPx === activeTarget.startPx && (c.type === 'image' || c.type === 'video' || c.type === 'text' || c.type === 'sticker'));
                             clipsToResize.forEach(c => {
                                 c.widthPx = finalWidth;
@@ -699,7 +789,6 @@
                                 if(uiEl) uiEl.style.width = finalWidth + 'px';
                             });
 
-                            // 2. Ripple Edit: Desplazar TODAS las imágenes, textos y audios que estén a la derecha para CERO ESPACIOS
                             projectClips.forEach(c => {
                                 if(c.startPx > activeTarget.startPx) {
                                     c.startPx += diffPx;
@@ -708,12 +797,9 @@
                                 }
                             });
                             
-                            // Mover también el marcador amarillo si fue empujado
-                            outMarkerX += diffPx;
-                            updateExportZone();
+                            outMarkerX += diffPx; updateExportZone();
                         }
 
-                        // Crear el clip de Voz en la línea de tiempo
                         const clipId = Date.now();
                         const clipUi = document.createElement('div'); clipUi.className = 'clip-block audio'; clipUi.style.left = recordingStartPx + 'px'; clipUi.style.width = finalWidth + 'px'; clipUi.setAttribute('data-id', clipId); clipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-microphone"></i> &nbsp;Voz_Off</div>`;
                         makeDraggable(clipUi, false, clipId); makeResizable(clipUi, clipId); clipUi.addEventListener('mousedown', selectClip); clipUi.addEventListener('touchstart', selectClip, {passive: true}); document.getElementById('audioTrack').appendChild(clipUi);
@@ -727,7 +813,7 @@
 
                         voiceStream.getTracks().forEach(t => t.stop());
                         
-                        playheadX = recordingStartPx + finalWidth; // Saltar justo donde termina la voz y la imagen ajustada
+                        playheadX = recordingStartPx + finalWidth; 
                         document.getElementById('playhead').style.left = playheadX + 'px'; updateTimecode(); triggerAutosave();
                     };
                     
@@ -737,7 +823,6 @@
             } else { voiceRecorder.stop(); isRecordingVoice = false; if(isPlaying) togglePlayback(); btn.classList.remove('danger'); btn.innerHTML = '<i class="fa-solid fa-microphone"></i> Grabar Narración Impulsada por Voz'; badge.style.display = 'none'; }
         }
 
-        let mainRecorder; let exportChunks = [];
         function exportVideo() {
             initAudio(); if(projectClips.length === 0) return alert("Agrega medios antes de exportar."); if(selectedClipEl) selectedClipEl.classList.remove('selected'); selectedClipEl = null; if(exportChunks.length > 0) exportChunks = [];
             const finalStream = canvas.captureStream(30); if (audioMixer && audioMixer.stream.getAudioTracks().length > 0) finalStream.addTrack(audioMixer.stream.getAudioTracks()[0]);
@@ -753,7 +838,6 @@
         }
 
         function switchTab(tabId) { document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(tabId).classList.add('active'); event.currentTarget.classList.add('active'); }
-        window.onload = loadProjectList;
     </script>
 </body>
 </html>
