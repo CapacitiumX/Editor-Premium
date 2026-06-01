@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CapacitiumX Studio V24 - Auto Títulos Contiguos</title>
+    <title>CapacitiumX Studio V25 - FX Aleatorios Automáticos</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --neon: #3b82f6; --bg: #050507; --panel: #121216; --track-bg: #1f1f23; }
@@ -80,7 +80,7 @@
 
     <div class="app-header">
         <div style="display: flex; align-items: center; gap: 15px;">
-            <span><i class="fa-solid fa-crown" style="color: #fbbf24;"></i> Estudio Pro V24</span>
+            <span><i class="fa-solid fa-crown" style="color: #fbbf24;"></i> Estudio Pro V25</span>
             <div class="autosave-badge" id="saveIndicator"><i class="fa-solid fa-cloud"></i> Guardado</div>
         </div>
         <button class="btn-save" id="btnExport" onclick="exportVideo()"><i class="fa-solid fa-rocket"></i> EXPORTAR HASTA LÍNEA AMARILLA</button>
@@ -106,7 +106,6 @@
         </div>
         
         <div class="tracks-container" id="timelineScroll">
-            <!-- DELIMITADORES -->
             <div class="export-zone" id="exportZone"></div>
             <div class="marker-in" id="markerIn"></div>
             <div class="marker-out" id="markerOut"></div>
@@ -137,7 +136,7 @@
             <input type="file" id="fileUpload" accept="image/*,video/*" multiple style="display:none;" onchange="addMediaToTimeline(event)">
             
             <div style="background: #121216; padding: 10px; border-radius: 6px; margin-top: 5px; border: 1px solid #333;">
-                <label style="font-size: 11px; color: #aaa;">Volumen del Video Original</label>
+                <label style="font-size: 11px; color: #aaa;">Volumen del Video Original (Ideal para Doblaje)</label>
                 <input type="range" id="masterVolume" min="0" max="100" value="100" oninput="updateMasterVolume()">
             </div>
             
@@ -160,7 +159,7 @@
                         <label style="font-size: 9px; color: #888;">¿Fondo en el Texto?</label>
                         <select id="useBgOption" onchange="liveUpdateText()">
                             <option value="transparent">Sin Fondo</option>
-                            <option value="color">Con Fondo</option>
+                            <option value="color">Con Fondo de Color</option>
                         </select>
                     </div>
                     <div><label style="font-size: 9px; color: #888;">Color de Fondo</label><input type="color" id="overlayBg" value="#e50000" oninput="liveUpdateText()"></div>
@@ -248,7 +247,7 @@
 
             <h4 style="font-size: 12px; border-bottom: 1px solid #333; padding-bottom: 5px; margin: 15px 0 5px 0;">Historial de Proyectos</h4>
             <div class="project-list" id="projectListDisplay"></div>
-            <div class="btn danger" onclick="clearProjects()" style="margin-top: 10px;"><i class="fa-solid fa-trash"></i> Borrar Todo el Historial</div>
+            <div class="btn danger" onclick="clearProjects()" style="margin-top: 10px;"><i class="fa-solid fa-triangle-exclamation"></i> Vaciar toda la papelera</div>
         </div>
     </div>
 
@@ -264,6 +263,9 @@
         
         let projectClips = []; 
         let selectedClipEl = null; let isDraggingOverlay = false; let isExporting = false;
+
+        const EXPORT_FILTERS = ['sepia(100%)', 'grayscale(100%) contrast(120%)', 'brightness(110%) contrast(120%) saturate(140%)', 'contrast(130%) saturate(10%) sepia(30%) hue-rotate(180deg)', 'brightness(80%) contrast(140%)', 'hue-rotate(90deg) saturate(150%)', 'invert(100%)', 'sepia(50%) hue-rotate(320deg) saturate(200%)', 'sepia(50%) hue-rotate(200deg) saturate(150%)', 'contrast(200%) grayscale(100%)', 'saturate(300%)', 'blur(3px) contrast(150%)', 'brightness(150%)', 'sepia(80%) contrast(110%) brightness(90%)'];
+        const EXPORT_ANIMS = ['fade', 'zoom-in', 'zoom-out', 'slide-left', 'slide-right', 'slide-up', 'slide-down', 'spin-in', 'pop', 'shake', 'pulse', 'flash', 'cinematic-pan', 'blur-in'];
 
         // --- SISTEMA DE AUTOGUARDADO AVANZADO ---
         let currentProjectId = Date.now().toString();
@@ -292,8 +294,11 @@
             try {
                 localStorage.setItem('capacitiumProjects', JSON.stringify(allProjects));
                 setTimeout(() => { ind.innerHTML = '<i class="fa-solid fa-check" style="color:#10b981;"></i> Guardado'; loadProjectList(); }, 500);
-            } catch (e) { ind.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Memoria Llena'; }
+            } catch (e) {
+                ind.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Memoria Llena';
+            }
         }
+
         function forceSaveProject() { triggerAutosave(); }
 
         function loadProjectList() {
@@ -336,8 +341,14 @@
             p.clips.forEach(c => {
                 const clipUi = document.createElement('div');
                 clipUi.className = `clip-block ${c.type === 'text' ? 'text' : (c.type === 'audio' ? 'audio' : (c.type === 'image' || c.type === 'sticker' ? 'image' : ''))}`;
+                
                 let domEl = null; let imgObj = null;
-                if ((c.type === 'image' || c.type === 'sticker') && c.base64Data) { let img = new Image(); img.src = c.base64Data; if(c.type === 'image') domEl = img; else imgObj = img; c.isOffline = false; }
+                if ((c.type === 'image' || c.type === 'sticker') && c.base64Data) {
+                    let img = new Image(); img.src = c.base64Data;
+                    if(c.type === 'image') domEl = img; else imgObj = img;
+                    c.isOffline = false;
+                }
+                
                 if (c.type === 'audio' && c.base64Data) {
                     let audioEl = document.createElement('audio'); audioEl.src = c.base64Data; mediaContainer.appendChild(audioEl);
                     audioEl.oncanplay = () => { if (!audioEl.hasAudioConnected) { try { const source = audioCtx.createMediaElementSource(audioEl); source.connect(audioCtx.destination); source.connect(audioMixer); audioEl.hasAudioConnected = true; } catch(e) {} } };
@@ -351,6 +362,7 @@
                 let title = c.type === 'text' ? c.content.substring(0,6) : (c.isOffline ? 'Toca para reconectar' : (c.type === 'sticker' ? 'Sticker' : (c.type === 'audio' ? 'Voz_Off' : 'Foto')));
                 clipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-${icon}"></i> &nbsp;${title}</div>`;
                 if (c.filter !== 'none' || c.anim !== 'none') clipUi.innerHTML += `<div class="fx-badge"><i class="fa-solid fa-wand-magic-sparkles"></i></div>`;
+                else clipUi.classList.add('has-fx'); // Always ready for dynamic
                 
                 makeDraggable(clipUi, false, c.id); makeResizable(clipUi, c.id);
                 clipUi.addEventListener('mousedown', selectClip); clipUi.addEventListener('touchstart', selectClip, {passive: true});
@@ -359,7 +371,8 @@
                     clipUi.addEventListener('dblclick', () => {
                         let input = document.createElement('input'); input.type = 'file'; input.accept = c.type === 'audio' ? 'audio/*,video/*' : 'image/*,video/*';
                         input.onchange = (e) => {
-                            let file = e.target.files[0]; if(!file) return; let url = URL.createObjectURL(file); let mediaEl;
+                            let file = e.target.files[0]; if(!file) return; let url = URL.createObjectURL(file);
+                            let mediaEl;
                             if(c.type === 'video' || c.type === 'audio') { mediaEl = document.createElement('video'); mediaEl.src = url; mediaEl.crossOrigin = "anonymous"; mediaContainer.appendChild(mediaEl); } 
                             else { mediaEl = new Image(); mediaEl.src = url; }
                             let found = projectClips.find(pc => pc.id == c.id);
@@ -370,6 +383,7 @@
 
                 let trackId = c.type === 'text' ? 'textTrack' : (c.type === 'audio' ? 'audioTrack' : (c.type === 'sticker' || c.type === 'image' ? 'imageTrack' : 'videoTrack'));
                 document.getElementById(trackId).appendChild(clipUi);
+
                 projectClips.push({...c, domElement: domEl, imgObj: imgObj});
             });
             resetPlayhead(); alert("Proyecto cargado.");
@@ -497,7 +511,7 @@
         // --- CONVERTIR ARCHIVOS A BASE64 ---
         function getBase64(file, callback) { var reader = new FileReader(); reader.readAsDataURL(file); reader.onload = function () { callback(reader.result); }; }
 
-        // --- IMPORTACIÓN MULTIPLE ("DE JALÓN") Y CERO ESPACIOS ---
+        // --- IMPORTACIÓN MÚLTIPLE CON FX AUTOMÁTICOS ---
         function addMediaToTimeline(event) {
             initAudio(); 
             const files = event.target.files; 
@@ -510,13 +524,17 @@
                 const fileNameRaw = file.name.replace(/\.[^/.]+$/, "");
                 const mediaClipId = Date.now() + 'm' + i; 
                 const currentPx = playheadX;
+
+                // FX AUTOMÁTICO ALEATORIO
+                const randomFilter = EXPORT_FILTERS[Math.floor(Math.random() * EXPORT_FILTERS.length)];
+                const randomAnim = EXPORT_ANIMS[Math.floor(Math.random() * EXPORT_ANIMS.length)];
                 
                 const mediaClipUi = document.createElement('div'); 
-                mediaClipUi.className = `clip-block ${isVideo ? '' : 'image'}`; 
+                mediaClipUi.className = `clip-block ${isVideo ? '' : 'image'} has-fx`; 
                 mediaClipUi.style.left = currentPx + 'px'; 
                 mediaClipUi.style.width = '150px'; 
                 mediaClipUi.setAttribute('data-id', mediaClipId); 
-                mediaClipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-${isVideo ? 'film' : 'image'}"></i> &nbsp;${fileNameRaw.substring(0,8)}</div>`;
+                mediaClipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-${isVideo ? 'film' : 'image'}"></i> &nbsp;${fileNameRaw.substring(0,8)}</div><div class="fx-badge"><i class="fa-solid fa-wand-magic-sparkles"></i></div>`;
                 
                 makeDraggable(mediaClipUi, false, mediaClipId); makeResizable(mediaClipUi, mediaClipId); 
                 mediaClipUi.addEventListener('mousedown', selectClip); mediaClipUi.addEventListener('touchstart', selectClip, {passive: true}); 
@@ -526,24 +544,22 @@
                 if(isVideo) {
                     mediaElement = document.createElement('video'); mediaElement.src = url; mediaElement.playsInline = true; mediaElement.crossOrigin = "anonymous"; mediaElement.volume = document.getElementById('masterVolume').value / 100; mediaContainer.appendChild(mediaElement);
                     mediaElement.oncanplay = () => { if (!mediaElement.hasAudioConnected) { try { const source = audioCtx.createMediaElementSource(mediaElement); source.connect(audioCtx.destination); source.connect(audioMixer); mediaElement.hasAudioConnected = true; } catch(e) {} } };
-                    projectClips.push({ id: mediaClipId, type: 'video', startPx: currentPx, widthPx: 150, offsetPx: 0, domElement: mediaElement, filter: 'none', anim: 'none', isOffline: false });
+                    projectClips.push({ id: mediaClipId, type: 'video', startPx: currentPx, widthPx: 150, offsetPx: 0, domElement: mediaElement, filter: randomFilter, anim: randomAnim, isOffline: false });
                 } else { 
                     mediaElement = new Image(); mediaElement.src = url; 
                     getBase64(file, (b64) => { 
                         let found = projectClips.find(c => c.id === mediaClipId);
                         if(found) { found.base64Data = b64; triggerAutosave(); }
                     });
-                    projectClips.push({ id: mediaClipId, type: 'image', startPx: currentPx, widthPx: 150, offsetPx: 0, domElement: mediaElement, filter: 'none', anim: 'none', isOffline: false, base64Data: null });
+                    projectClips.push({ id: mediaClipId, type: 'image', startPx: currentPx, widthPx: 150, offsetPx: 0, domElement: mediaElement, filter: randomFilter, anim: randomAnim, isOffline: false, base64Data: null });
                 }
 
-                // Título Automático Sincronizado
+                // Título Automático
                 const textClipId = Date.now() + 't' + i;
                 const textClipUi = document.createElement('div');
-                textClipUi.className = 'clip-block text';
-                textClipUi.style.left = currentPx + 'px';
-                textClipUi.style.width = '150px';
-                textClipUi.setAttribute('data-id', textClipId);
-                textClipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-font"></i> &nbsp;${fileNameRaw.substring(0,8)}</div>`;
+                textClipUi.className = 'clip-block text has-fx';
+                textClipUi.style.left = currentPx + 'px'; textClipUi.style.width = '150px'; textClipUi.setAttribute('data-id', textClipId);
+                textClipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-font"></i> &nbsp;${fileNameRaw.substring(0,8)}</div><div class="fx-badge"><i class="fa-solid fa-wand-magic-sparkles"></i></div>`;
                 
                 makeDraggable(textClipUi, false, textClipId); makeResizable(textClipUi, textClipId);
                 textClipUi.addEventListener('mousedown', selectClip); textClipUi.addEventListener('touchstart', selectClip, {passive: true});
@@ -551,21 +567,18 @@
 
                 projectClips.push({
                     id: textClipId, type: 'text', content: fileNameRaw, 
-                    color: "#ffff00", font: "Impact", 
-                    useBg: false, bgColor: "#000000", 
-                    x: 640, y: 670, // Posicionado en el borde inferior
-                    size: 80, 
+                    color: "#ffff00", font: "Impact", useBg: false, bgColor: "#000000", 
+                    x: 640, y: 680, size: 90, 
                     startPx: currentPx, widthPx: 150, offsetPx: 0, 
                     filter: 'none', anim: 'none', isOffline: false
                 });
 
                 let endClip = currentPx + 150; if (endClip > outMarkerX) { outMarkerX = endClip; updateExportZone(); } 
-                playheadX += 150; // Cero espacios negros entre clips
+                playheadX += 150; 
             }
             
             document.getElementById('playhead').style.left = playheadX + 'px'; 
-            updateTimecode(); triggerAutosave();
-            event.target.value = ''; 
+            updateTimecode(); triggerAutosave(); event.target.value = ''; 
         }
 
         function addStickerToTimeline(event) {
@@ -662,7 +675,7 @@
                 if(activeVisualClip.type === 'video' && activeVisualClip.domElement.readyState >= 2) { ctx.drawImage(activeVisualClip.domElement, -canvas.width/2, -canvas.height/2, canvas.width, canvas.height); } 
                 else if (activeVisualClip.type === 'image') { ctx.drawImage(activeVisualClip.domElement, -canvas.width/2, -canvas.height/2, canvas.width, canvas.height); }
                 ctx.restore();
-            } else { ctx.globalAlpha = 1.0; ctx.filter = 'none'; ctx.fillStyle = "#ffffff"; ctx.font = "bold 28px sans-serif"; ctx.textAlign = "center"; ctx.fillText("Área de Lienzo", canvas.width/2, canvas.height/2); }
+            } else { ctx.globalAlpha = 1.0; ctx.filter = 'none'; ctx.fillStyle = "#ffffff"; ctx.font = "bold 28px sans-serif"; ctx.textAlign = "center"; ctx.fillText("Sin Medios", canvas.width/2, canvas.height/2); }
             
             ctx.globalAlpha = 1.0; ctx.filter = 'none';
 
