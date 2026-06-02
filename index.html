@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CapacitiumX Studio V28 - DB Profunda y Collage Auto</title>
+    <title>CapacitiumX Studio V29 - Miniaturas IA</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --neon: #3b82f6; --bg: #050507; --panel: #121216; --track-bg: #1f1f23; }
@@ -31,7 +31,7 @@
         .marker-in { position: absolute; top: 0; bottom: 0; width: 4px; background: #10b981; z-index: 35; cursor: ew-resize; }
         .marker-in::before { content: 'INICIO'; position: absolute; top: -10px; left: 0; background: #10b981; font-size: 8px; padding: 2px 4px; border-radius: 2px; color: white; font-weight: bold; }
         .marker-out { position: absolute; top: 0; bottom: 0; width: 4px; background: #eab308; z-index: 35; cursor: ew-resize; box-shadow: 0 0 10px rgba(234, 179, 8, 0.8); }
-        .marker-out::before { content: 'FIN DE VIDEO'; position: absolute; top: -10px; left: -30px; background: #eab308; font-size: 8px; padding: 2px 4px; border-radius: 2px; color: black; font-weight: bold; }
+        .marker-out::before { content: 'FIN'; position: absolute; top: -10px; left: -16px; background: #eab308; font-size: 8px; padding: 2px 4px; border-radius: 2px; color: black; font-weight: bold; }
 
         .playhead-container { position: absolute; top: 0; bottom: 0; left: 45px; width: 20px; z-index: 40; transform: translateX(-10px); cursor: ew-resize; }
         .playhead-line { position: absolute; left: 10px; width: 2px; height: 100%; background: #ffffff; pointer-events: none; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
@@ -64,7 +64,6 @@
         .btn.primary:hover { background: #2563eb; }
         .btn.danger { background: #ef4444; border: none; }
         select, input[type="text"], input[type="color"] { background: #18181c; border: 1px solid #333; color: white; padding: 8px; border-radius: 6px; font-size: 12px; width: 100%; box-sizing: border-box; outline: none; }
-        select:focus, input[type="text"]:focus { border-color: var(--neon); }
         input[type="range"] { width: 100%; accent-color: var(--neon); }
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -73,12 +72,11 @@
         .project-list { display: flex; flex-direction: column; gap: 8px; max-height: 150px; overflow-y: auto; }
         .project-item { background: #18181c; padding: 10px; border-radius: 6px; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
 
-        /* Estilos Collage */
-        .collage-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 10px; }
+        .collage-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-top: 10px; }
         .collage-card { background: #000; border: 2px solid #333; border-radius: 6px; cursor: pointer; overflow: hidden; transition: 0.2s; text-align: center; }
         .collage-card:hover { border-color: #10b981; transform: scale(1.02); }
-        .collage-card img { width: 100%; height: 80px; object-fit: cover; display: block; }
-        .collage-title { font-size: 9px; padding: 5px; color: #ccc; font-weight: bold; }
+        .collage-card img { width: 100%; height: 75px; object-fit: cover; display: block; }
+        .collage-title { font-size: 9px; padding: 5px; color: #ccc; font-weight: bold; line-height: 1.2; }
 
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
@@ -87,7 +85,7 @@
 
     <div class="app-header">
         <div style="display: flex; align-items: center; gap: 15px;">
-            <span><i class="fa-solid fa-crown" style="color: #fbbf24;"></i> Estudio Pro V28</span>
+            <span><i class="fa-solid fa-crown" style="color: #fbbf24;"></i> Estudio Pro V29</span>
             <div class="autosave-badge" id="saveIndicator"><i class="fa-solid fa-database"></i> DB Activa</div>
         </div>
         <button class="btn-save" id="btnExport" onclick="exportVideo()"><i class="fa-solid fa-rocket"></i> EXPORTAR HASTA LÍNEA AMARILLA</button>
@@ -134,8 +132,8 @@
         <div class="tab-menu">
             <div class="tab-btn active" onclick="switchTab('media')"><i class="fa-solid fa-folder-open"></i> Medios</div>
             <div class="tab-btn" onclick="switchTab('fx')"><i class="fa-solid fa-wand-magic-sparkles"></i> Diseño & FX</div>
-            <div class="tab-btn" onclick="switchTab('thumbs')"><i class="fa-solid fa-image"></i> Miniaturas (Collage)</div>
-            <div class="tab-btn" onclick="switchTab('projects')"><i class="fa-solid fa-database"></i> Historial (DB)</div>
+            <div class="tab-btn" onclick="switchTab('thumbs')"><i class="fa-solid fa-image"></i> Miniaturas (10)</div>
+            <div class="tab-btn" onclick="switchTab('projects')"><i class="fa-solid fa-database"></i> DB</div>
         </div>
 
         <!-- MEDIOS -->
@@ -144,7 +142,7 @@
             <input type="file" id="fileUpload" accept="image/*,video/*" multiple style="display:none;" onchange="addMediaToTimeline(event)">
             
             <div style="background: #121216; padding: 10px; border-radius: 6px; margin-top: 5px; border: 1px solid #333;">
-                <label style="font-size: 11px; color: #aaa;">Volumen del Video Original</label>
+                <label style="font-size: 11px; color: #aaa;">Volumen del Video Original (Ideal para Doblaje)</label>
                 <input type="range" id="masterVolume" min="0" max="100" value="100" oninput="updateMasterVolume()">
             </div>
             
@@ -219,22 +217,33 @@
                 </div>
                 <button class="btn primary" onclick="applyFXToSelected()" style="width: 100%; margin-top: 10px; padding: 8px;"><i class="fa-solid fa-check-double"></i> Aplicar al Cuadrito</button>
             </div>
+            
+            <div class="grid-2" style="margin-top: 10px;">
+                <button class="btn primary" onclick="document.getElementById('stickerUpload').click()"><i class="fa-solid fa-image"></i> Añadir Foto/Sticker</button>
+                <div>
+                    <label style="font-size: 11px; color: #aaa;">Tamaño Texto/Sticker</label>
+                    <input type="range" id="elementSize" min="10" max="800" value="60" oninput="updateSelectedOverlaySize()">
+                </div>
+            </div>
+            <input type="file" id="stickerUpload" accept="image/*" multiple style="display:none;" onchange="addStickerToTimeline(event)">
         </div>
 
-        <!-- GENERADOR DE MINIATURAS COLLAGE -->
+        <!-- GENERADOR DE MINIATURAS (10 OPCIONES CON TEXTO IA) -->
         <div id="thumbs" class="tab-content">
             <div style="background: #121216; padding: 15px; border-radius: 6px; border: 1px solid #10b981; text-align: center;">
                 <i class="fa-brands fa-youtube" style="font-size: 24px; color: #ef4444; margin-bottom: 10px;"></i>
-                <h3 style="margin: 0 0 5px 0; font-size: 14px;">Miniaturas IA (YouTube)</h3>
-                <p style="font-size: 11px; color: #aaa;">El sistema tomará las fotos de tu línea de tiempo para crear 5 propuestas de miniatura automáticas de alto impacto visual.</p>
-                <div class="grid-2" style="margin-top: 15px;">
-                    <button class="btn primary" onclick="generateThumbnail('manual')" style="font-size: 11px;"><i class="fa-solid fa-camera-retro"></i> Captura Lienzo Actual</button>
-                    <button class="btn" onclick="generateAutoCollages()" style="background: #ef4444; border: none; font-size: 11px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Generar 5 Opciones de Collage</button>
+                <h3 style="margin: 0 0 5px 0; font-size: 14px;">Miniaturas IA (10 Opciones)</h3>
+                <p style="font-size: 11px; color: #aaa;">Ingresa el tema de tu video y el sistema generará automáticamente 10 miniaturas impactantes usando tus fotos con títulos estilo "Clickbait".</p>
+                
+                <input type="text" id="thumbTopic" placeholder="Ej: La ciudad de Monterrey" style="margin-top: 10px; margin-bottom: 10px; font-weight: bold; text-align: center;">
+                
+                <div class="grid-2">
+                    <button class="btn" onclick="generateAutoCollages()" style="background: #ef4444; border: none; font-size: 11px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Crear 10 Miniaturas Mágicas</button>
+                    <!-- Captura manual integrada aquí por si prefiere armarla a mano en el lienzo -->
+                    <button class="btn primary" onclick="generateThumbnail('manual')" style="font-size: 11px;"><i class="fa-solid fa-camera-retro"></i> Captura Lienzo Manual</button>
                 </div>
                 
-                <div id="collageResults" class="collage-container" style="display: none;">
-                    <!-- Se llenará dinámicamente con JS -->
-                </div>
+                <div id="collageResults" class="collage-container" style="display: none;"></div>
             </div>
         </div>
 
@@ -246,7 +255,6 @@
                     <input type="text" id="projectName" placeholder="Ej: Video Automatizado..." value="Proyecto Sin Título">
                     <button class="btn primary" onclick="forceSaveProject()"><i class="fa-solid fa-save"></i> Guardar en DB</button>
                 </div>
-                <p style="font-size: 9px; color: #888; margin-top: 5px;">*Usando IndexedDB local para evadir el límite de 5MB del navegador. Tus fotos y audios se guardarán de forma profunda.</p>
             </div>
 
             <h4 style="font-size: 12px; border-bottom: 1px solid #333; padding-bottom: 5px; margin: 15px 0 5px 0;">Historial de Proyectos (DB)</h4>
@@ -258,16 +266,13 @@
     <script>
         // --- BASE DE DATOS PROFUNDA (INDEXEDDB) ---
         let db;
-        const dbName = "CapacitiumX_StudioDB";
+        const dbName = "CapacitiumX_StudioDB_V2";
         const requestDB = indexedDB.open(dbName, 1);
         
         requestDB.onupgradeneeded = function(e) {
             let localDb = e.target.result;
-            if (!localDb.objectStoreNames.contains('projects')) {
-                localDb.createObjectStore('projects', { keyPath: 'id' });
-            }
+            if (!localDb.objectStoreNames.contains('projects')) { localDb.createObjectStore('projects', { keyPath: 'id' }); }
         };
-        
         requestDB.onsuccess = function(e) { db = e.target.result; loadProjectList(); };
         requestDB.onerror = function(e) { console.error("Error IndexedDB:", e); };
 
@@ -291,7 +296,6 @@
         function triggerAutosave() {
             if(!db) return;
             const ind = document.getElementById('saveIndicator'); ind.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando DB...';
-            
             let saveData = projectClips.map(c => {
                 return {
                     id: c.id, type: c.type, startPx: c.startPx, widthPx: c.widthPx, offsetPx: c.offsetPx,
@@ -305,12 +309,8 @@
             let projectInfo = { id: currentProjectId, name: projName, date: new Date().toLocaleString(), markers: { in: inMarkerX, out: outMarkerX }, clips: saveData };
             
             let tx = db.transaction(['projects'], 'readwrite');
-            let store = tx.objectStore('projects');
-            store.put(projectInfo);
-            
-            tx.oncomplete = function() {
-                setTimeout(() => { ind.innerHTML = '<i class="fa-solid fa-check" style="color:#10b981;"></i> DB Guardada'; loadProjectList(); }, 300);
-            };
+            let store = tx.objectStore('projects'); store.put(projectInfo);
+            tx.oncomplete = function() { setTimeout(() => { ind.innerHTML = '<i class="fa-solid fa-check" style="color:#10b981;"></i> DB Guardada'; loadProjectList(); }, 300); };
             tx.onerror = function() { ind.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Error de DB'; };
         }
 
@@ -320,8 +320,7 @@
             if(!db) return;
             const container = document.getElementById('projectListDisplay'); container.innerHTML = '';
             let tx = db.transaction(['projects'], 'readonly');
-            let store = tx.objectStore('projects');
-            let req = store.getAll();
+            let req = tx.objectStore('projects').getAll();
             req.onsuccess = function() {
                 let allProjects = req.result;
                 allProjects.reverse().forEach(p => {
@@ -339,24 +338,14 @@
         
         function deleteSingleProject(id) {
             if(confirm("¿Seguro que quieres borrar este proyecto de la Base de Datos?")) {
-                let tx = db.transaction(['projects'], 'readwrite');
-                let store = tx.objectStore('projects');
-                store.delete(id);
+                let tx = db.transaction(['projects'], 'readwrite'); tx.objectStore('projects').delete(id);
                 tx.oncomplete = function() { loadProjectList(); if(currentProjectId === id) alert("El proyecto actual fue borrado."); };
             }
         }
-
-        function clearProjects() { 
-            if(confirm("¿Borrar TODO el historial permanentemente?")) { 
-                let tx = db.transaction(['projects'], 'readwrite');
-                tx.objectStore('projects').clear();
-                tx.oncomplete = function() { loadProjectList(); };
-            } 
-        }
+        function clearProjects() { if(confirm("¿Borrar TODO el historial permanentemente?")) { let tx = db.transaction(['projects'], 'readwrite'); tx.objectStore('projects').clear(); tx.oncomplete = function() { loadProjectList(); }; } }
 
         function loadProject(id) {
-            let tx = db.transaction(['projects'], 'readonly');
-            let req = tx.objectStore('projects').get(id);
+            let tx = db.transaction(['projects'], 'readonly'); let req = tx.objectStore('projects').get(id);
             req.onsuccess = function(e) {
                 let p = e.target.result; if(!p) return;
                 
@@ -393,8 +382,8 @@
                     if(c.isOffline) {
                         clipUi.addEventListener('dblclick', () => {
                             let input = document.createElement('input'); input.type = 'file'; input.accept = c.type === 'audio' ? 'audio/*,video/*' : 'image/*,video/*';
-                            input.onchange = (e) => {
-                                let file = e.target.files[0]; if(!file) return; let url = URL.createObjectURL(file); let mediaEl;
+                            input.onchange = (ev) => {
+                                let file = ev.target.files[0]; if(!file) return; let url = URL.createObjectURL(file); let mediaEl;
                                 if(c.type === 'video' || c.type === 'audio') { mediaEl = document.createElement('video'); mediaEl.src = url; mediaEl.crossOrigin = "anonymous"; mediaContainer.appendChild(mediaEl); } 
                                 else { mediaEl = new Image(); mediaEl.src = url; }
                                 let found = projectClips.find(pc => pc.id == c.id);
@@ -493,7 +482,11 @@
             const id = selectedClipEl.getAttribute('data-id'); const c = projectClips.find(clip => clip.id == id);
             if(c) {
                 if(c.type === 'text' || c.type === 'sticker') document.getElementById('elementSize').value = c.size;
-                if(c.type === 'text') { document.getElementById('overlayText').value = c.content; document.getElementById('overlayColor').value = c.color; document.getElementById('overlayBg').value = c.bgColor || '#000000'; document.getElementById('textFont').value = c.font || 'sans-serif'; document.getElementById('useBgOption').value = c.useBg ? 'color' : 'transparent'; }
+                if(c.type === 'text') {
+                    document.getElementById('overlayText').value = c.content; document.getElementById('overlayColor').value = c.color;
+                    document.getElementById('overlayBg').value = c.bgColor || '#000000'; document.getElementById('textFont').value = c.font || 'sans-serif';
+                    document.getElementById('useBgOption').value = c.useBg ? 'color' : 'transparent';
+                }
                 document.getElementById('clipFilter').value = c.filter || 'none'; document.getElementById('clipAnim').value = c.anim || 'none';
             }
         }
@@ -502,19 +495,26 @@
             let inputVal = document.getElementById('overlayText').value.trim(); let textContent = inputVal !== '' ? inputVal : "Texto";
             const clipId = Date.now(); const clipUi = document.createElement('div'); clipUi.className = 'clip-block text'; clipUi.style.left = playheadX + 'px'; clipUi.style.width = '150px'; clipUi.setAttribute('data-id', clipId); 
             clipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-font"></i> &nbsp;${textContent.substring(0,6)}</div>`;
+            
             makeDraggable(clipUi, false, clipId); makeResizable(clipUi, clipId); clipUi.addEventListener('mousedown', selectClip); clipUi.addEventListener('touchstart', selectClip, {passive: true}); document.getElementById('textTrack').appendChild(clipUi);
 
             let fontColor = document.getElementById('overlayColor').value || '#ffffff'; let fontType = document.getElementById('textFont').value || 'sans-serif'; let hasBg = document.getElementById('useBgOption') ? document.getElementById('useBgOption').value === 'color' : false; let bgColor = document.getElementById('overlayBg').value || '#e50000';
 
             projectClips.push({ id: clipId, type: 'text', content: textContent, color: fontColor, font: fontType, useBg: hasBg, bgColor: bgColor, x: 640, y: 360, size: 80, startPx: playheadX, widthPx: 150, offsetPx: 0, filter: 'none', anim: 'none', isOffline: false });
+            
             clipUi.dispatchEvent(new Event('mousedown')); document.getElementById('overlayText').value = textContent;
-            let endClip = playheadX + 150; if (endClip > outMarkerX) { outMarkerX = endClip; updateExportZone(); } playheadX += 160; document.getElementById('playhead').style.left = playheadX + 'px'; updateTimecode(); triggerAutosave();
+
+            let endClip = playheadX + 150; if (endClip > outMarkerX) { outMarkerX = endClip; updateExportZone(); } 
+            playheadX += 160; document.getElementById('playhead').style.left = playheadX + 'px'; updateTimecode(); triggerAutosave();
         }
 
         function getBase64(file, callback) { var reader = new FileReader(); reader.readAsDataURL(file); reader.onload = function () { callback(reader.result); }; }
 
         function addMediaToTimeline(event) {
-            initAudio(); const files = event.target.files; if (!files || files.length === 0) return; 
+            initAudio(); 
+            const files = event.target.files; 
+            if (!files || files.length === 0) return; 
+
             for (let i = 0; i < files.length; i++) {
                 const file = files[i]; const isVideo = file.type.startsWith('video/'); const url = URL.createObjectURL(file); const fileNameRaw = file.name.replace(/\.[^/.]+$/, "");
                 const mediaClipId = Date.now() + 'm' + i; const currentPx = playheadX;
@@ -524,6 +524,7 @@
                 
                 const mediaClipUi = document.createElement('div'); mediaClipUi.className = `clip-block ${isVideo ? '' : 'image'} has-fx`; mediaClipUi.style.left = currentPx + 'px'; mediaClipUi.style.width = '450px'; mediaClipUi.setAttribute('data-id', mediaClipId); 
                 mediaClipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-${isVideo ? 'film' : 'image'}"></i> &nbsp;${fileNameRaw.substring(0,8)}</div><div class="fx-badge"><i class="fa-solid fa-wand-magic-sparkles"></i></div>`;
+                
                 makeDraggable(mediaClipUi, false, mediaClipId); makeResizable(mediaClipUi, mediaClipId); mediaClipUi.addEventListener('mousedown', selectClip); mediaClipUi.addEventListener('touchstart', selectClip, {passive: true}); document.getElementById(isVideo ? 'videoTrack' : 'imageTrack').appendChild(mediaClipUi);
                 
                 let mediaElement;
@@ -546,6 +547,20 @@
                 let endClip = currentPx + 450; if (endClip > outMarkerX) { outMarkerX = endClip; updateExportZone(); } playheadX += 450; 
             }
             document.getElementById('playhead').style.left = playheadX + 'px'; updateTimecode(); triggerAutosave(); event.target.value = ''; 
+        }
+
+        function addStickerToTimeline(event) {
+            const files = event.target.files; if (!files || files.length === 0) return; 
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i]; const img = new Image(); const url = URL.createObjectURL(file); img.src = url; const currentPx = playheadX; const clipId = Date.now() + i;
+                img.onload = () => {
+                    const clipUi = document.createElement('div'); clipUi.className = 'clip-block image'; clipUi.style.left = currentPx + 'px'; clipUi.style.width = '100px'; clipUi.setAttribute('data-id', clipId); clipUi.innerHTML = `<div class="drag-area"><i class="fa-solid fa-face-smile"></i> &nbsp;Sticker</div>`;
+                    makeDraggable(clipUi, false, clipId); makeResizable(clipUi, clipId); clipUi.addEventListener('mousedown', selectClip); clipUi.addEventListener('touchstart', selectClip, {passive: true}); document.getElementById('textTrack').appendChild(clipUi); 
+                    getBase64(file, (b64) => { projectClips.push({ id: clipId, type: 'sticker', imgObj: img, ratio: img.height / img.width, x: 640, y: 360, size: 300, startPx: currentPx, widthPx: 100, offsetPx: 0, filter: 'none', anim: 'none', isOffline: false, base64Data: b64 }); triggerAutosave(); });
+                }; 
+                let endClip = currentPx + 100; if (endClip > outMarkerX) { outMarkerX = endClip; updateExportZone(); } playheadX += 100; 
+            }
+            document.getElementById('playhead').style.left = playheadX + 'px'; updateTimecode(); event.target.value = '';
         }
 
         function duplicateSelectedClip() {
@@ -584,6 +599,7 @@
             handle.addEventListener('mousedown', resizeStart); handle.addEventListener('touchstart', resizeStart, {passive: false});
         }
 
+        // TÁCTIL EN CANVAS
         function getCanvasPos(e) { const rect = canvas.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; return { x: (clientX - rect.left) * (canvas.width / rect.width), y: (clientY - rect.top) * (canvas.height / rect.height) }; }
         function handleCanvasStart(e) {
             const pos = getCanvasPos(e); let found = null;
@@ -600,7 +616,7 @@
         function handleCanvasEnd(e) { if(isDraggingOverlay){ isDraggingOverlay = false; triggerAutosave(); } }
         canvas.addEventListener('mousedown', handleCanvasStart); canvas.addEventListener('touchstart', handleCanvasStart, {passive: false}); canvas.addEventListener('mousemove', handleCanvasMove);  canvas.addEventListener('touchmove', handleCanvasMove, {passive: false}); window.addEventListener('mouseup', handleCanvasEnd); window.addEventListener('touchend', handleCanvasEnd);
 
-        // --- RENDERIZADO VISUAL ---
+        // --- RENDERIZADO VISUAL PARA PREVIEW Y MINIATURAS ---
         function renderCanvasGraphics() {
             ctx.fillStyle = "#111115"; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -657,7 +673,7 @@
         function renderLoop() { renderCanvasGraphics(); requestAnimationFrame(renderLoop); }
         renderLoop();
 
-        // --- SISTEMA DE MINIATURAS MEJORADO (COLLAGES 5 OPCIONES) ---
+        // --- 10 MINIATURAS IA AUTOMÁTICAS ---
         function generateThumbnail(mode) {
             if (selectedClipEl) { selectedClipEl.classList.remove('selected'); selectedClipEl = null; }
             if(mode === 'auto') { projectClips.forEach(c => { if(c.type === 'text' || c.type === 'sticker') c.tempHidden = true; }); }
@@ -669,66 +685,123 @@
             }, 100);
         }
 
-        // GENERADOR DE 5 COLLAGES AUTOMÁTICOS
         function generateAutoCollages() {
-            // Obtener todas las imágenes únicas cargadas en el proyecto
             let images = projectClips.filter(c => c.type === 'image' && c.domElement).map(c => c.domElement);
-            if (images.length < 2) return alert("Sube al menos 2 fotos al editor para poder generar collages automáticos.");
+            if (images.length === 0) return alert("Sube al menos 1 foto al editor para poder generar miniaturas IA.");
+            
+            // Si solo hay una imagen, la repetimos para que no se rompan los collages
+            if (images.length === 1) { images.push(images[0], images[0], images[0]); }
+            if (images.length === 2) { images.push(images[0], images[1]); }
+
+            let topic = document.getElementById('thumbTopic').value || "Monterrey";
             
             const resultsContainer = document.getElementById('collageResults');
-            resultsContainer.innerHTML = '';
-            resultsContainer.style.display = 'grid';
+            resultsContainer.innerHTML = ''; resultsContainer.style.display = 'grid';
 
-            // Crear 5 lienzos virtuales ocultos para hacer las composiciones
             const w = 1280; const h = 720;
-            
-            // Función auxiliar para recortar imagen tipo "Cover"
             function drawCover(ctxTemp, img, x, y, cw, ch) {
-                let imgRatio = img.width / img.height; let canvasRatio = cw / ch;
-                let sx, sy, sw, sh;
+                let imgRatio = img.width / img.height; let canvasRatio = cw / ch; let sx, sy, sw, sh;
                 if (imgRatio > canvasRatio) { sh = img.height; sw = img.height * canvasRatio; sx = (img.width - sw) / 2; sy = 0; } 
                 else { sw = img.width; sh = img.width / canvasRatio; sx = 0; sy = (img.height - sh) / 2; }
                 ctxTemp.drawImage(img, sx, sy, sw, sh, x, y, cw, ch);
             }
 
-            // Opción 1: Split Vertical (Mitad y Mitad)
-            let c1 = document.createElement('canvas'); c1.width = w; c1.height = h; let ctx1 = c1.getContext('2d');
-            drawCover(ctx1, images[0], 0, 0, w/2, h); drawCover(ctx1, images[1], w/2, 0, w/2, h);
-            ctx1.fillStyle = "white"; ctx1.fillRect(w/2 - 5, 0, 10, h); // Borde blanco
-            addCollageOption(c1, "Split Vertical");
+            function drawThumbnailText(ctxTemp, textArr, yPos, color, hasShadow = true) {
+                ctxTemp.textAlign = "center"; ctxTemp.textBaseline = "middle";
+                ctxTemp.font = "bold 90px Impact";
+                
+                textArr.forEach((line, index) => {
+                    let finalY = yPos + (index * 100);
+                    if(hasShadow) { ctxTemp.fillStyle = "rgba(0,0,0,0.8)"; ctxTemp.fillText(line.toUpperCase(), w/2 + 8, finalY + 8); }
+                    ctxTemp.strokeStyle = '#000000'; ctxTemp.lineWidth = 15; ctxTemp.strokeText(line.toUpperCase(), w/2, finalY);
+                    ctxTemp.fillStyle = color; ctxTemp.fillText(line.toUpperCase(), w/2, finalY);
+                });
+            }
 
-            // Opción 2: Split Horizontal (Arriba y Abajo)
-            let c2 = document.createElement('canvas'); c2.width = w; c2.height = h; let ctx2 = c2.getContext('2d');
-            drawCover(ctx2, images[0], 0, 0, w, h/2); drawCover(ctx2, images[1], 0, h/2, w, h/2);
-            ctx2.fillStyle = "white"; ctx2.fillRect(0, h/2 - 5, w, 10);
-            addCollageOption(c2, "Split Horizontal");
+            // Hook IA generator
+            const hooks = [
+                [`¿LA VERDAD SOBRE`, topic + `?`],
+                [`EL SECRETO DE`, topic],
+                [`¡MIRA ESTO!`, topic],
+                [`TODO SOBRE`, topic],
+                [`¿CONOCES`, topic + `?`],
+                [`LO QUE NO SABÍAS`, `DE ` + topic],
+                [`¡IMPACTANTE!`, topic],
+                [`LA HISTORIA DE`, topic],
+                [`¿POR QUÉ`, topic + `?`],
+                [`EL MISTERIO DE`, topic]
+            ];
 
-            // Opción 3: Tríptico (Principal izquierda, 2 derechas)
-            let c3 = document.createElement('canvas'); c3.width = w; c3.height = h; let ctx3 = c3.getContext('2d');
-            let img3 = images.length > 2 ? images[2] : images[0];
-            drawCover(ctx3, images[0], 0, 0, w * 0.66, h); 
-            drawCover(ctx3, images[1], w * 0.66, 0, w * 0.34, h/2); 
-            drawCover(ctx3, img3, w * 0.66, h/2, w * 0.34, h/2);
-            ctx3.fillStyle = "white"; ctx3.fillRect(w * 0.66 - 5, 0, 10, h); ctx3.fillRect(w * 0.66, h/2 - 5, w * 0.34, 10);
-            addCollageOption(c3, "Tríptico Dinámico");
-
-            // Opción 4: Cuadrícula 2x2
-            let c4 = document.createElement('canvas'); c4.width = w; c4.height = h; let ctx4 = c4.getContext('2d');
-            let img4 = images.length > 3 ? images[3] : images[1];
-            drawCover(ctx4, images[0], 0, 0, w/2, h/2); drawCover(ctx4, images[1], w/2, 0, w/2, h/2);
-            drawCover(ctx4, img3, 0, h/2, w/2, h/2); drawCover(ctx4, img4, w/2, h/2, w/2, h/2);
-            ctx4.fillStyle = "white"; ctx4.fillRect(w/2 - 5, 0, 10, h); ctx4.fillRect(0, h/2 - 5, w, 10);
-            addCollageOption(c4, "Cuadrícula 2x2");
-
-            // Opción 5: Diagonal Cinemática (Aproximación con polígonos)
-            let c5 = document.createElement('canvas'); c5.width = w; c5.height = h; let ctx5 = c5.getContext('2d');
-            ctx5.fillStyle = "black"; ctx5.fillRect(0,0,w,h);
-            ctx5.save(); ctx5.beginPath(); ctx5.moveTo(0,0); ctx5.lineTo(w*0.7,0); ctx5.lineTo(w*0.3,h); ctx5.lineTo(0,h); ctx5.closePath(); ctx5.clip(); drawCover(ctx5, images[0], 0, 0, w, h); ctx5.restore();
-            ctx5.save(); ctx5.beginPath(); ctx5.moveTo(w*0.7,0); ctx5.lineTo(w,0); ctx5.lineTo(w,h); ctx5.lineTo(w*0.3,h); ctx5.closePath(); ctx5.clip(); drawCover(ctx5, images[1], 0, 0, w, h); ctx5.restore();
-            ctx5.strokeStyle = "white"; ctx5.lineWidth = 15; ctx5.beginPath(); ctx5.moveTo(w*0.7, 0); ctx5.lineTo(w*0.3, h); ctx5.stroke();
-            addCollageOption(c5, "Corte Diagonal");
+            // 10 OPCIONES DE MINIATURA CLICKBAIT
             
-            alert("¡Se generaron 5 propuestas de miniatura! Haz clic en la que más te guste abajo para descargarla.");
+            // 1. Split Vertical
+            let c1 = document.createElement('canvas'); c1.width = w; c1.height = h; let ctx1 = c1.getContext('2d');
+            drawCover(ctx1, images[0], 0, 0, w/2, h); drawCover(ctx1, images[1], w/2, 0, w/2, h); ctx1.fillStyle = "white"; ctx1.fillRect(w/2 - 5, 0, 10, h); 
+            drawThumbnailText(ctx1, hooks[0], h/2 - 50, "#ffff00"); addCollageOption(c1, "Split Vertical + Texto");
+
+            // 2. Imagen Única + Degradado Oscuro
+            let c2 = document.createElement('canvas'); c2.width = w; c2.height = h; let ctx2 = c2.getContext('2d');
+            drawCover(ctx2, images[0], 0, 0, w, h);
+            let grd2 = ctx2.createLinearGradient(0, h/2, 0, h); grd2.addColorStop(0, "transparent"); grd2.addColorStop(1, "rgba(0,0,0,0.9)"); ctx2.fillStyle = grd2; ctx2.fillRect(0,0,w,h);
+            drawThumbnailText(ctx2, hooks[1], h - 150, "#ffffff"); addCollageOption(c2, "Degradado Oscuro");
+
+            // 3. Grid 2x2 + Caja Roja
+            let c3 = document.createElement('canvas'); c3.width = w; c3.height = h; let ctx3 = c3.getContext('2d');
+            drawCover(ctx3, images[0], 0, 0, w/2, h/2); drawCover(ctx3, images[1], w/2, 0, w/2, h/2); drawCover(ctx3, images[2], 0, h/2, w/2, h/2); drawCover(ctx3, images[3] || images[0], w/2, h/2, w/2, h/2);
+            ctx3.fillStyle = "white"; ctx3.fillRect(w/2 - 5, 0, 10, h); ctx3.fillRect(0, h/2 - 5, w, 10);
+            ctx3.fillStyle = "#ef4444"; ctx3.fillRect(w/2 - 350, h/2 - 120, 700, 240);
+            drawThumbnailText(ctx3, hooks[2], h/2 - 40, "#ffffff", false); addCollageOption(c3, "Grid + Alerta Roja");
+
+            // 4. Diagonal Cortada
+            let c4 = document.createElement('canvas'); c4.width = w; c4.height = h; let ctx4 = c4.getContext('2d');
+            ctx4.fillStyle = "black"; ctx4.fillRect(0,0,w,h);
+            ctx4.save(); ctx4.beginPath(); ctx4.moveTo(0,0); ctx4.lineTo(w*0.7,0); ctx4.lineTo(w*0.3,h); ctx4.lineTo(0,h); ctx4.closePath(); ctx4.clip(); drawCover(ctx4, images[0], 0, 0, w, h); ctx4.restore();
+            ctx4.save(); ctx4.beginPath(); ctx4.moveTo(w*0.7,0); ctx4.lineTo(w,0); ctx4.lineTo(w,h); ctx4.lineTo(w*0.3,h); ctx4.closePath(); ctx4.clip(); drawCover(ctx4, images[1], 0, 0, w, h); ctx4.restore();
+            ctx4.strokeStyle = "#ffff00"; ctx4.lineWidth = 15; ctx4.beginPath(); ctx4.moveTo(w*0.7, 0); ctx4.lineTo(w*0.3, h); ctx4.stroke();
+            drawThumbnailText(ctx4, hooks[3], h/2 - 50, "#ffffff"); addCollageOption(c4, "Corte Diagonal");
+
+            // 5. Horizontal + Barra Negra Centro
+            let c5 = document.createElement('canvas'); c5.width = w; c5.height = h; let ctx5 = c5.getContext('2d');
+            drawCover(ctx5, images[0], 0, 0, w, h/2); drawCover(ctx5, images[1], 0, h/2, w, h/2);
+            ctx5.fillStyle = "black"; ctx5.fillRect(0, h/2 - 100, w, 200);
+            drawThumbnailText(ctx5, hooks[4], h/2 - 40, "#3b82f6"); addCollageOption(c5, "Barra Cinemática");
+
+            // 6. Tríptico Dinámico
+            let c6 = document.createElement('canvas'); c6.width = w; c6.height = h; let ctx6 = c6.getContext('2d');
+            drawCover(ctx6, images[0], 0, 0, w * 0.66, h); drawCover(ctx6, images[1], w * 0.66, 0, w * 0.34, h/2); drawCover(ctx6, images[2], w * 0.66, h/2, w * 0.34, h/2);
+            ctx6.fillStyle = "white"; ctx6.fillRect(w * 0.66 - 5, 0, 10, h); ctx6.fillRect(w * 0.66, h/2 - 5, w * 0.34, 10);
+            drawThumbnailText(ctx6, hooks[5], h - 180, "#ffff00"); addCollageOption(c6, "Tríptico");
+
+            // 7. Fondo Borroso + Recuadro
+            let c7 = document.createElement('canvas'); c7.width = w; c7.height = h; let ctx7 = c7.getContext('2d');
+            ctx7.filter = 'blur(10px)'; drawCover(ctx7, images[0], 0, 0, w, h); ctx7.filter = 'none';
+            ctx7.fillStyle = "rgba(0,0,0,0.5)"; ctx7.fillRect(0,0,w,h);
+            ctx7.strokeStyle = "white"; ctx7.lineWidth = 10; ctx7.strokeRect(w*0.1, h*0.1, w*0.4, h*0.8);
+            drawCover(ctx7, images[1], w*0.1, h*0.1, w*0.4, h*0.8);
+            drawThumbnailText(ctx7, hooks[6], h/2 - 50, "#ef4444"); addCollageOption(c7, "Focus Mode");
+
+            // 8. Top Heavy (70/30)
+            let c8 = document.createElement('canvas'); c8.width = w; c8.height = h; let ctx8 = c8.getContext('2d');
+            drawCover(ctx8, images[0], 0, 0, w, h * 0.7); drawCover(ctx8, images[1], 0, h * 0.7, w, h * 0.3);
+            ctx8.fillStyle = "#ffff00"; ctx8.fillRect(0, h*0.7 - 5, w, 10);
+            drawThumbnailText(ctx8, hooks[7], h*0.7 - 100, "#ffffff"); addCollageOption(c8, "Top Heavy");
+
+            // 9. Tres Tiras Verticales
+            let c9 = document.createElement('canvas'); c9.width = w; c9.height = h; let ctx9 = c9.getContext('2d');
+            drawCover(ctx9, images[0], 0, 0, w/3, h); drawCover(ctx9, images[1], w/3, 0, w/3, h); drawCover(ctx9, images[2], w*0.66, 0, w/3, h);
+            ctx9.fillStyle = "black"; ctx9.fillRect(w/3 - 5, 0, 10, h); ctx9.fillRect(w*0.66 - 5, 0, 10, h);
+            ctx9.fillStyle = "rgba(0,0,0,0.7)"; ctx9.fillRect(0, h - 200, w, 200);
+            drawThumbnailText(ctx9, hooks[8], h - 140, "#10b981"); addCollageOption(c9, "Tres Tiras");
+
+            // 10. Estilo Reacción (Circulo de cámara simulado)
+            let c10 = document.createElement('canvas'); c10.width = w; c10.height = h; let ctx10 = c10.getContext('2d');
+            drawCover(ctx10, images[0], 0, 0, w, h);
+            ctx10.save(); ctx10.beginPath(); ctx10.arc(w - 250, h - 250, 200, 0, Math.PI * 2); ctx10.closePath();
+            ctx10.lineWidth = 15; ctx10.strokeStyle = "#ef4444"; ctx10.stroke(); ctx10.clip();
+            drawCover(ctx10, images[1], w - 450, h - 450, 400, 400); ctx10.restore();
+            drawThumbnailText(ctx10, hooks[9], h/2 - 50, "#ffff00"); addCollageOption(c10, "Estilo Reacción");
+            
+            alert("¡Se generaron 10 propuestas de miniatura IA! Haz clic en la que más te guste abajo para descargarla.");
         }
 
         function addCollageOption(canvasObj, titleStr) {
@@ -737,13 +810,13 @@
             const card = document.createElement('div'); card.className = 'collage-card';
             card.innerHTML = `<img src="${dataUrl}"><div class="collage-title">${titleStr} <i class="fa-solid fa-download"></i></div>`;
             card.onclick = () => {
-                const a = document.createElement('a'); a.style.display = 'none'; a.href = dataUrl; a.download = `Collage_CapacitiumX_${Date.now()}.jpg`;
+                const a = document.createElement('a'); a.style.display = 'none'; a.href = dataUrl; a.download = `Miniatura_${titleStr}_${Date.now()}.jpg`;
                 document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(dataUrl);
             };
             container.appendChild(card);
         }
 
-        // --- SISTEMA DE TIEMPOS ---
+        // --- TIEMPOS Y AUDIO MAGNÉTICO ---
         let globalTime = 0; let isPlaying = false; let playInterval; let playheadX = 45; const pixelsPerSecond = 20; 
         function updateTimecode() { let secs = Math.floor(globalTime / 10); let decs = globalTime % 10; document.getElementById('timecode').innerText = `00:${secs.toString().padStart(2,'0')}.${decs}`; }
         function togglePlayback() {
@@ -762,9 +835,7 @@
             projectClips.forEach(clip => { if((clip.type === 'video' || clip.type === 'audio') && clip.domElement && !clip.isOffline) { let mediaTime = ((playheadX - clip.startPx) + clip.offsetPx) / pixelsPerSecond; if(mediaTime >= 0) clip.domElement.currentTime = mediaTime; } });
         }
 
-        // --- MAGIA: AUDIO DICTA EL TAMAÑO DE LA IMAGEN ---
         let isRecordingVoice = false; let voiceStream; let voiceRecorder; let voiceChunks = []; let voiceStartTime = 0; let recordingStartPx = 0; let activeTarget = null;
-        
         async function toggleVoiceRecord() {
             initAudio(); const btn = document.getElementById('btnRecVoice'); const badge = document.getElementById('recBadge');
             if (!isRecordingVoice) {
@@ -781,22 +852,9 @@
                         let diffPx = 0;
                         if(activeTarget) {
                             diffPx = finalWidth - activeTarget.widthPx;
-                            
-                            let clipsToResize = projectClips.filter(c => c.startPx === activeTarget.startPx && (c.type === 'image' || c.type === 'video' || c.type === 'text' || c.type === 'sticker'));
-                            clipsToResize.forEach(c => {
-                                c.widthPx = finalWidth;
-                                let uiEl = document.querySelector(`.clip-block[data-id="${c.id}"]`);
-                                if(uiEl) uiEl.style.width = finalWidth + 'px';
-                            });
-
-                            projectClips.forEach(c => {
-                                if(c.startPx > activeTarget.startPx) {
-                                    c.startPx += diffPx;
-                                    let uiEl = document.querySelector(`.clip-block[data-id="${c.id}"]`);
-                                    if(uiEl) uiEl.style.left = c.startPx + 'px';
-                                }
-                            });
-                            
+                            let clipsToResize = projectClips.filter(c => c.startPx === activeTarget.startPx && c.id !== Date.now() && (c.type === 'image' || c.type === 'video' || c.type === 'text' || c.type === 'sticker'));
+                            clipsToResize.forEach(c => { c.widthPx = finalWidth; let uiEl = document.querySelector(`.clip-block[data-id="${c.id}"]`); if(uiEl) uiEl.style.width = finalWidth + 'px'; });
+                            projectClips.forEach(c => { if(c.startPx > activeTarget.startPx) { c.startPx += diffPx; let uiEl = document.querySelector(`.clip-block[data-id="${c.id}"]`); if(uiEl) uiEl.style.left = c.startPx + 'px'; } });
                             outMarkerX += diffPx; updateExportZone();
                         }
 
@@ -812,17 +870,17 @@
                         });
 
                         voiceStream.getTracks().forEach(t => t.stop());
-                        
                         playheadX = recordingStartPx + finalWidth; 
-                        document.getElementById('playhead').style.left = playheadX + 'px'; updateTimecode(); triggerAutosave();
+                        globalTime = Math.round((playheadX - 45) / (pixelsPerSecond/10)); document.getElementById('playhead').style.left = playheadX + 'px'; updateTimecode(); triggerAutosave();
                     };
                     
                     voiceStartTime = Date.now(); voiceRecorder.start(); isRecordingVoice = true; btn.classList.add('danger'); btn.innerHTML = '<i class="fa-solid fa-stop"></i> Detener Narración'; badge.innerHTML = 'GRABANDO VOZ'; badge.style.display = 'block';
                     if(!isPlaying) togglePlayback(); 
                 } catch(e) { alert("Permite acceso al micrófono."); }
-            } else { voiceRecorder.stop(); isRecordingVoice = false; if(isPlaying) togglePlayback(); btn.classList.remove('danger'); btn.innerHTML = '<i class="fa-solid fa-microphone"></i> Grabar Narración Impulsada por Voz'; badge.style.display = 'none'; }
+            } else { voiceRecorder.stop(); isRecordingVoice = false; if(isPlaying) togglePlayback(); btn.classList.remove('danger'); btn.innerHTML = '<i class="fa-solid fa-microphone"></i> Grabar Narración Exacta'; badge.style.display = 'none'; }
         }
 
+        let mainRecorder; let exportChunks = [];
         function exportVideo() {
             initAudio(); if(projectClips.length === 0) return alert("Agrega medios antes de exportar."); if(selectedClipEl) selectedClipEl.classList.remove('selected'); selectedClipEl = null; if(exportChunks.length > 0) exportChunks = [];
             const finalStream = canvas.captureStream(30); if (audioMixer && audioMixer.stream.getAudioTracks().length > 0) finalStream.addTrack(audioMixer.stream.getAudioTracks()[0]);
